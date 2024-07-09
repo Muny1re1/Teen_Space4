@@ -6,11 +6,12 @@ function Landingpage() {
   return (
     <div>
         <div className='landing-page-container'>
-            <div className='login-btn'>
-                <Link to='/login'><i className="fa-solid fa-right-to-bracket"></i>Login</Link>
-            </div>
             <div className='intro-text'>
                 <h1>Welcome to<br/><span>TeenSpace</span></h1>
+                <p>Your voice. Your choice. Your community.</p>
+            </div>
+            <div className='login-btn'>
+                <Link to='/login'><i className="fa-solid fa-right-to-bracket"></i>Login</Link>
             </div>
         </div>
     </div>

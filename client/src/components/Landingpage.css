@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+/*Landing Page*/
+.landing-page-container {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    background-image: url('https://i.pinimg.com/originals/78/78/37/78783730716fd6cde9ce80f84f6ae0c4.gif');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.intro-text h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 100px;
+    text-align: center;
+    color: rgb(177, 97, 0);
+    animation: fadeInUp 2s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.intro-text h1 span {
+    font-weight: 400;
+    letter-spacing: 25px;
+    color: bisque;
+    text-shadow: 8px 6px 2px rgb(177, 97, 0);
+    font-weight: 600;
+}
+
+.intro-text p {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    text-align: center;
+    color: rgb(255, 229, 197);
+    margin-top: -60px;
+    letter-spacing: 8px;
+}
+
+.login-btn {
+    margin-top: -800px;
+    font-size: 25px;
+    margin-right: -800px;
+    font-weight: 600;
+}
+
+.login-btn a {
+    transition: all 0.3s ease-in-out;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+.login-btn a:hover {
+    transform: scale(1.1);
+    color: rgb(248, 218, 49);
+}
+
+@media (max-width: 768px) {
+    .intro-text h1 {
+        font-size: 2rem;
+    }
+    .intro-text p {
+        font-size: 12px;
+        margin-top: -30px;
+    }
+    .login-btn {
+        margin-top: -500px;
+        margin-right: -400px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .intro-text h1 {
+        font-size: 1.5rem;
+    }
+    .intro-text p {
+        font-size: 10px;
+        margin-top: -20px;
+    }
+    .login-btn {
+        margin-top: -300px;
+        margin-right: -200px;
+        font-size: 14px;
+    }
+}
+
+
+/* Main Page */
+/* Sidebar */
+.sidebar{
+    width: 300px;
+    background: #181725;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-right: 2px var(--bg-black-50);
+    z-index: 10;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.sidebar .nav{
+    margin-top: 50px;
+}
+
+.sidebar .nav li{
+    margin-bottom: 20px;
+    display: block;
+}
+
+.sidebar .nav li i{
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.sidebar .nav li a{
+    font-size: 18px;
+    font-weight: 600;
+    display: block;
+    border-bottom: 1px solid rgb(0, 227, 227);
+    color: var(--bg-black-100);
+    padding: 5px 15px;
+}
+
+.sidebar .nav li a{
+    margin-right: 16px;
+}
+
+.sidebar .nav li .active{
+    color: rgb(0, 189, 227);
+    font-weight: 700;
+    
+    transition: all.3s ease-in-out;
+}
+
+.sidebar .nav li .active:hover{
+    transform: scale(1.09);
+}
