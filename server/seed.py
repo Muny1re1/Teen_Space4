@@ -2,12 +2,23 @@ from datetime import datetime, timedelta
 from app import app, db  
 from models import User, Club, Event, Announcement
 import random
+import re
 
 # Function to create users
 def create_users(num_users):
     users = []
     for i in range(1, num_users + 1):
-        user = User(username=f'user{i}', password=f'password{i}')
+        email = f'user{i}@example.com'
+        if User.query.filter_by(email=email).first():
+            print(f"Email {email} is already in use, skipping user{i}.")
+            continue  # Skip if email is already in use
+
+        password = f'Password{i}!'
+        if not re.match(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password):
+            print(f"Skipping user{i} due to invalid password: {password}")
+            continue
+        
+        user = User(username=f'user{i}', email=email, password=password)
         users.append(user)
     return users
 
