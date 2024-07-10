@@ -6,7 +6,7 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    height: 97.9vh;
+    height: 100vh;
     overflow: hidden;
     background-image: url('../assets/space.gif');
     background-repeat: no-repeat;
@@ -50,6 +50,7 @@
     color: rgb(255, 229, 197);
     margin-top: -60px;
     letter-spacing: 8px;
+    margin-top: 5px;
 }
 
 .login-btn {
