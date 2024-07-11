@@ -41,17 +41,20 @@
 }
 
 .nav-links a{
+    margin-left: -2px;
     text-decoration: none;
-    color: whitesmoke;
+    color: rgb(255, 175, 84);
     font-size: 25px;
     font-weight: 500;
     position: relative;
     display: inline-flex;
     align-items: center;
+    transition: all.3s ease-in-out;
 }
 
 .nav-links a:hover{
-    color: #ff9e17;
+    transform: scale(1.09);
+    color: #fd9400;
     border-bottom: 2px solid rgb(238, 124, 43);
 }
 
