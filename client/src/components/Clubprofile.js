@@ -16,11 +16,32 @@ const dummyClubProfile = {
   ]
 };
 
+const mockApiCall = (action) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(`${action} club successful`);
+      resolve();
+    }, 1000);
+  });
+};
+
 function Clubprofile() {
   const { id } = useParams();
   const [club, setClub] = useState(null);
   const [events, setEvents] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [isMember, setIsMember] = useState(false);
+
+  const handleJoin = async () => {
+    await mockApiCall('Join');
+    setIsMember(true);
+  };
+  
+  const handleLeave = async () => {
+    await mockApiCall('Leave');
+    setIsMember(false);
+  };
+  
 
   useEffect(() => {
     // Simulating API calls with dummy data
@@ -65,8 +86,11 @@ function Clubprofile() {
       </ul>
       </div>
 
-        <button className='btn-join'>Join the Club</button>
-        <button className='btn-leave'>Leave the Club</button>
+      {!isMember ? (
+        <button className='btn-join' onClick={handleJoin}>Join the Club</button>
+      ) : (
+        <button className='btn-leave' onClick={handleLeave}>Leave the Club</button>
+      )}
 
       </div>
 

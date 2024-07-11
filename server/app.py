@@ -157,4 +157,4 @@ api.add_resource(Events, '/events')
 # api.add_resource(Announcements, '/announcements')
 
 if __name__ == '__main__':
-    app.run(port=5555, debug=True)
+    app.run(port=5556, debug=True)

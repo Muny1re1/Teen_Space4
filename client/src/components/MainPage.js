@@ -3,26 +3,26 @@ import { Link } from "react-router-dom";
 import "./Mainpage.css";
 import Clubcard from "./Clubcard"
 
-const dummyClubs = [
-  {
-    id: 1,
-    name: "Science Explorers",
-    description: "A club for young scientists to explore and experiment.",
-    created_at: "2023-05-15T10:00:00Z",
-  },
-  {
-    id: 2,
-    name: "Art & Creativity",
-    description: "Express yourself through various art forms and techniques.",
-    created_at: "2023-05-20T11:30:00Z",
-  },
-  {
-    id: 3,
-    name: "Debate Team",
-    description: "Sharpen your critical thinking and public speaking skills.",
-    created_at: "2023-05-25T09:45:00Z",
-  }
-];
+// const dummyClubs = [
+//   {
+//     id: 1,
+//     name: "Science Explorers",
+//     description: "A club for young scientists to explore and experiment.",
+//     created_at: "2023-05-15T10:00:00Z",
+//   },
+//   {
+//     id: 2,
+//     name: "Art & Creativity",
+//     description: "Express yourself through various art forms and techniques.",
+//     created_at: "2023-05-20T11:30:00Z",
+//   },
+//   {
+//     id: 3,
+//     name: "Debate Team",
+//     description: "Sharpen your critical thinking and public speaking skills.",
+//     created_at: "2023-05-25T09:45:00Z",
+//   }
+// ];
 
 function MainPage() {
   const [clubs, setClubs] = useState([]);
@@ -32,7 +32,10 @@ function MainPage() {
   }, []);
 
   const fetchClubs = () => {
-    setClubs(dummyClubs);
+    fetch('http://localhost:5000/clubs')
+      .then(response => response.json())
+      .then(data => setClubs(data))
+      .catch(error => console.error('Error fetching clubs:', error));
   };
 
   return (
