@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Mainpage.css";
+import Clubcard from "./components/Clubcard"
 
 function MainPage() {
+  const [clubs, setClubs] = useState([]);
+
+  useEffect(() => {
+    // Fetch Clubs
+    fetchClubs();
+  }, []);
+
+  const fetchClubs = async () => {
+    // Clubs API
+    const response = await fetch("/api/clubs");
+    const data = await response.json();
+    setClubs(data);
+  };
+
   return (
     <div>
       <div className="main-container">
@@ -25,6 +40,14 @@ function MainPage() {
         <div className="main-content">
           <div className="nav-top">
           <Link to="/notification" className="login-btn"><i class="fa-solid fa-bell fa-shake"></i></Link>
+          </div>
+          <div className="clubs-section">
+            <h2>TeenSpace Clubs</h2>
+            <div className="club-container">
+              {clubs.map((club) => (
+                <Clubcard key={club._id} club={club} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
