@@ -67,11 +67,6 @@ class Announcement(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    club_id = db.Column(db.Integer, db.ForeignKey('club.id'))
 
     # one-to-many relationship
     user = db.relationship("User", back_populates="announcements")
-    club = db.relationship("Club", back_populates="announcements")
-
-    def __repr__(self):
-        return f'<Announcement {self.content}>'
