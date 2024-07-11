@@ -29,7 +29,18 @@ function Login() {
           <h3>Sign in with your TeenSpace account</h3>
           <p>Let's get you signed in and straight to your activites</p>
           <div className="form-group">
-            <label htmlFor="username">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Email"
+              required
+              onChange={formik.handleChange}
+              value={formik.values.username}
+            />
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <div className="form-group">
             <input
               id="username"
               name="username"
@@ -42,7 +53,6 @@ function Login() {
             <i class="fa-solid fa-user"></i>
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
             <input
               id="password"
               name="password"
@@ -56,18 +66,25 @@ function Login() {
           </div>
 
           <div class="remfo">
-            <input type="checkbox" name="remember" id="remember" />
-            <label for="remember">Remember me</label>
-            Forgot Password?
+            <div className="check">
+              <input type="checkbox" name="remember" id="remember" />
+              <label for="remember">Remember me</label>
+            </div>
+            <div>
+              Forgot Password?
+            </div>
           </div>
 
+          <div className="btnn">
           <Link to="/mainpage" className="login-btn">
             Login <i class="fa-solid fa-right-to-bracket"></i>
           </Link>
+          </div>
+
           <div className="signup">
-            <p>
-              Don't have an account? <Link to="/signup">Sign Up</Link>
-            </p>
+            <h5>
+              Don't have an account?<Link to="/signup"><span>Sign Up</span></Link>
+            </h5>
           </div>
         </form>
       </div>

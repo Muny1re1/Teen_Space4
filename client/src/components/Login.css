@@ -12,17 +12,15 @@
 .login{
     width: 100%;
     height: 100vh;
-    background-image: url('../assets/form.png');
+    background-image: url('../assets/loginn.png');
     background-size: cover;
     display: flex;
-    justify-content: right;
-    align-items: center;
     flex-direction: row;
     padding: 20px; 
 }
 
 .form-container{
-    width: 90%;
+    width: 700px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -31,7 +29,8 @@
 }
 
 .starter {
-    width: 550px;
+    margin-top: 45px;
+    margin-left: 200px;
     height: 850px;
     background: transparent;
     border: 2px solid black;
@@ -44,7 +43,8 @@
 
 .starter h1 {
     text-align: center;
-    font-size: 40px;
+    color: wheat;
+    font-size: 50px;
     font-family: 'Dancing Script', cursive;
     margin-bottom: 30px;
 }
@@ -59,11 +59,12 @@
 
 .starter h3{
     text-align: center;
-    font-size: 25px;
+    font-size: 26px;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     margin-bottom: 30px;
     letter-spacing: 1px;
+    color: wheat;
 }
 
 .starter p{
@@ -72,19 +73,26 @@
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     margin-bottom: 30px;
-    letter-spacing: 1px;
+    letter-spacing: 4px;
     color: #ffe6c5;
 }
 
 .btn-back{
+    margin-top: 400px;
     height: 60px;
     background: transparent;
     padding: 10px;
-    margin-right: 1000px;
+    margin-right: 10px;
     font-size: 45px;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     cursor: pointer;
+    transition: all.3s ease-in-out;
+}
+
+.btn-back:hover{
+    transform: scale(1.09);
+    border: none;
 }
 
 .btn-back Link{
@@ -96,7 +104,7 @@
 
 .fa-arrow-left-long{
     font-size: 30px;
-    color: rgb(168, 105, 11);
+    color: rgb(153, 94, 7);
     margin-right: 10px;
 }
   
@@ -108,22 +116,24 @@
   }
   
   .form-group input {
-      width: 100%;
-      height: 100%;
-      border: none;
-      outline: none;
-      background: transparent;
-      border: 1px solid black;
-      border-radius: 50px;
-      font-size: 20px;
-      font-family: 'Times New Roman', Times, serif;
-      padding-left: 20px;
+    width: 100%;
+    height: 100%;
+    color: #ffe6c5;
+    outline: none;
+    background: transparent;
+    border: 1px solid black;
+    border-radius: 50px;
+    font-size: 20px;
+    font-family: 'Times New Roman', Times, serif;
+    padding-left: 20px;
+    margin-top: 5px;
   }
   
   .form-group input::placeholder {
-      color: rgb(58, 14, 14);
-      font-size: 20px;
-      padding-left: 10px;
+    color: rgb(255, 153, 94);
+    font-size: 20px;
+    padding-left: 10px;
+    opacity: 0.4;
   }
   
   .form-group i {
@@ -134,30 +144,67 @@
       font-size: 20px;
   }
   
-  .starter .remfo {
-      display: flex;
-      font-size: 13px;
-      font-weight: 300;
-      margin-top: 20px;
-      margin-bottom: 30px;
-  }
-  
-  .starter .remfo a{
-      margin-left: 185px;
-      text-decoration: none;
-      color: black;
-  }
-  
-  label {
-      margin: 0;
-  }
-  
-  input[type="checkbox"] {
-      margin: 0;
-  }
-  
-  .remfo label input {
-      accent-color: black;
-      margin-right: 4px;
-  }
-  
+.remfo{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 5px;
+    margin-top: -25px;
+}
+
+.check input{
+    margin-right: 5px;
+}
+
+.btnn{
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 10px;
+    border-radius: 20px;
+    align-items: center;
+    width: 350px;
+    margin-left: 130px;
+    transition: all.3s ease-in-out;
+    background: radial-gradient(circle at center, #462a02, #2b1901, #0d0804);
+}
+
+.btnn:hover{
+    border: none;
+    font-size: 20px;
+    font-weight: 600;
+    transform: scale(1.09);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .3);
+}
+
+.login-btn{
+    text-align: center;
+    margin-left: 110px;
+    color: wheat;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all.3s ease-in-out;
+}
+
+.starter h5{
+    text-align: center;
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.starter h5 span{
+    border-bottom: 2px solid rgb(173, 173, 255);
+    margin-left: 10px;
+    font-size: 23px;
+    color: rgb(173, 173, 255);
+}
+.starter h5 span:hover{
+    color: rgb(137, 255, 249);
+    border-bottom: 2px solid rgb(168, 252, 241);
+    cursor: pointer;
+}
+

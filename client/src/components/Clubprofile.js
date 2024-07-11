@@ -78,7 +78,7 @@ function Clubprofile() {
       </div>
 
       <div className='club-notifications'>
-      <h2>Notifications</h2>
+      <h2>Announcements</h2>
       <ul>
         {notifications.map(notification => (
           <li key={notification.id}>{notification.content}</li>
