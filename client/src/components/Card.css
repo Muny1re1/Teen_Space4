@@ -12,7 +12,7 @@
 .club-card:hover{
     transform: scale(1.05);
     box-shadow: 0 0 10px rgba(0, 0, 0, .3);
-    background: radial-gradient(circle, rgb(250, 240, 184), rgb(255, 193, 112));
+    background: radial-gradient(circle at center, #462a02, #2b1901, #0d0804);
     border: none;
 }
 
@@ -25,13 +25,13 @@
 }
 
 .club-card h3:hover{
-    color: #3d0000;
+    color: #ff7b00;
     border-bottom: 1px solid brown;
 }
 
 .club-card p{
     font-size: 17px;
     text-align: center;
-    color: #000000;
+    color: hsl(0, 0%, 98%);
     border-top: 10px;
 }

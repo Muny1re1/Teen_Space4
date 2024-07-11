@@ -10,8 +10,27 @@ function Login() {
       username: "",
       password: "",
     },
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       console.log(values);
+      try {
+        const response = await fetch("http://localhost:5000/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Login successful:", data);
+        // Redirect to main page or club dashboard
+        window.location.href = "/mainpage";
+      }
+      catch (error) {
+        console.log(error);
+      }
     },
   });
   const grinningEmoji = "😁";
@@ -37,7 +56,7 @@ function Login() {
               placeholder="Email"
               required
               onChange={formik.handleChange}
-              value={formik.values.username}
+              value={formik.values.email}
             />
             <i class="fa-solid fa-envelope"></i>
           </div>
