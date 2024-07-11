@@ -160,6 +160,8 @@ api.add_resource(Events, '/events')
 
 # api.add_resource(Announcements, '/announcements')
 
+with app.app_context():
+    db.create_all()
+    
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
+    app.run(debug=True)
