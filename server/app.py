@@ -3,13 +3,15 @@ from flask import Flask, request, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
-import os
-print(os.path.abspath('teen_space.db'))
+from flask import Flask
+from flask_cors import CORS
 
 from models import db, User, Club, Event, Announcement, user_club
 
-#database and migrations intialisation
 app = Flask(__name__)
+CORS(app, resources={r"/clubs": {"origins": "http://localhost:3000"}})
+
+# database and migrations initialization
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
