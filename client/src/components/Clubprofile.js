@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import './Clubprofile.css';
 
 const dummyClubProfile = {
@@ -33,22 +33,43 @@ function Clubprofile() {
 
   return (
     <div className="club-profile">
-      <h1>{club.name}</h1>
-      <p>{club.description}</p>
+      <div>
+      <div className="logo1">
+        <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="logo" />
+      </div>
+      <div className='club-details'>
+        <h1>{club.name}</h1>
+        <p>{club.description}</p>
+        <Link to="/mainpage">
+          <i class="fa-solid fa-arrow-left-long"></i>
+        </Link>
+      </div>
+      </div>
       
-      <h2>Events</h2>
-      <ul>
-        {events.map(event => (
-          <li key={event.id}>{event.name} - {new Date(event.date).toLocaleDateString()}</li>
-        ))}
-      </ul>
+      <div className='content'>
+      <div className='club-events'>
+        <h2>Events</h2>
+        <ul>
+          {events.map(event => (
+            <li key={event.id}>{event.name} - {new Date(event.date).toLocaleDateString()}</li>
+          ))}
+        </ul>
+      </div>
 
+      <div className='club-notifications'>
       <h2>Notifications</h2>
       <ul>
         {notifications.map(notification => (
           <li key={notification.id}>{notification.content}</li>
         ))}
       </ul>
+      </div>
+
+        <button className='btn-join'>Join the Club</button>
+        <button className='btn-leave'>Leave the Club</button>
+
+      </div>
+
     </div>
   );
 }

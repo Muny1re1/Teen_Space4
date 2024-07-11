@@ -72,7 +72,8 @@
 /*Main Content*/
 .main-content{
     margin-left: 100px;
-    background: #ffe9ca;
+    background: url(../assets/back.png);
+    background-size: cover;
     position: relative;
     top: 0;
     left: 0;
