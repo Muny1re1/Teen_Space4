@@ -19,7 +19,8 @@
     font-size: 30px;
     font-family: 'Times New Roman', Times, serif;
     text-align: center;
-    color: #643f0f;
+    color: #ffc355;
+    border-bottom: 10px;
 }
 
 .club-card h3:hover{
@@ -31,4 +32,5 @@
     font-size: 17px;
     text-align: center;
     color: #000000;
+    border-top: 10px;
 }
