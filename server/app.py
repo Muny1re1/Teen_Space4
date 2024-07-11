@@ -3,7 +3,6 @@ from flask import Flask, request, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
-from flask import Flask
 from flask_cors import CORS
 
 from models import db, User, Club, Event, Announcement, user_club
@@ -21,7 +20,7 @@ db.init_app(app)
 
 api = Api(app)
 
-# Home page 
+# Home page
 class Index(Resource):
     def get(self):
         response_dict = {"index": "Welcome to the Teen Space API"}
@@ -162,6 +161,6 @@ api.add_resource(Events, '/events')
 
 with app.app_context():
     db.create_all()
-    
+
 if __name__ == '__main__':
     app.run(debug=True)
