@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './Clubprofile.css';
 
-function ClubProfile() {
+function Clubprofile() {
   const { id } = useParams();
   const [club, setClub] = useState(null);
   const [events, setEvents] = useState([]);
@@ -56,4 +56,4 @@ function ClubProfile() {
   );
 }
 
-export default ClubProfile;
+export default Clubprofile;
