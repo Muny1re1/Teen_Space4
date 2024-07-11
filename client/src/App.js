@@ -4,7 +4,6 @@ import Login from './components/Login';
 import SignUp from './components/Signup';
 import MainPage from './components/MainPage';
 import Landingpage from './components/Landingpage';
-import Notification from './components/Notification';
 import Clubprofile from './components/Clubprofile';
 
 function App() {
@@ -16,7 +15,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/mainpage" element={<MainPage />} />
-          <Route path="/notification" element={<Notification />} />
           <Route path="/club/:id" element={<Clubprofile />} />
         </Routes>
       </div>
