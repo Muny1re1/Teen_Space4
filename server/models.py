@@ -19,6 +19,8 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False, unique=True)
+
 
     # many-to-many relationship
     clubs = db.relationship("Club", secondary=user_club, back_populates="users", cascade="all, delete")
