@@ -7,6 +7,7 @@ function Login() {
   const formik = useFormik({
     initialValues: {
       email: "",
+      username: "",
       password: "",
     },
     onSubmit: (values) => {
