@@ -3,12 +3,14 @@ from flask import Flask, request, make_response, jsonify
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
+import os
+print(os.path.abspath('teen_space.db'))
 
 from models import db, User, Club, Event, Announcement, user_club
 
 #database and migrations intialisation
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/teen_space'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
@@ -157,4 +159,5 @@ api.add_resource(Events, '/events')
 # api.add_resource(Announcements, '/announcements')
 
 if __name__ == '__main__':
-    app.run(port=5555, debug=True)
+    app.run(debug=True, port=5000)
+
