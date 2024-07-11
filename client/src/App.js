@@ -4,6 +4,7 @@ import Login from './components/Login';
 import SignUp from './components/Signup';
 import MainPage from './components/MainPage';
 import Landingpage from './components/Landingpage';
+import Notification from './components/Notification';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/mainpage" element={<MainPage />} />
+          <Route path="/notification" element={<Notification />} />
         </Routes>
       </div>
     </BrowserRouter>

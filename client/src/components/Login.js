@@ -58,7 +58,7 @@ function Login() {
           <div class="remfo">
             <input type="checkbox" name="remember" id="remember" />
             <label for="remember">Remember me</label>
-            <a href="#">Forgot Password?</a>
+            Forgot Password?
           </div>
 
           <Link to="/mainpage" className="login-btn">
