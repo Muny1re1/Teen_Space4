@@ -50,6 +50,9 @@ class Login(Resource):
             return make_response({'message': 'Invalid credentials'}, 401)
         return make_response({'message': 'Login successful'}, 200)
 
+    # def get():
+
+
 api.add_resource(Login, '/login')
 
 # List of clubs
@@ -130,6 +133,7 @@ class Events(Resource):
         return make_response({"id": new_event.id, "name": new_event.name, "date": new_event.date.isoformat()}, 201)
 
 api.add_resource(Events, '/events')
+
 
 with app.app_context():
     db.create_all()
