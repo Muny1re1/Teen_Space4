@@ -11,10 +11,10 @@ def create_users(num_users):
         email = f'user{i}@example.com'
         if User.query.filter_by(email=email).first():
             print(f"Email {email} is already in use, skipping user{i}.")
-            continue  # Skip if email is already in use
+            continue
 
         password = f'Password{i}!'
-        if not re.match(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password):
+        if not re.match(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}', password):
             print(f"Skipping user{i} due to invalid password: {password}")
             continue
         
@@ -57,33 +57,29 @@ def create_announcements(users):
 
 # Function to seed the data
 def seed_data(num_users, num_clubs, min_events_per_club):
-    with app.app_context():  # Ensure the app context is available
-        db.drop_all()  # Drop all tables (be careful with this in a production environment)
-        db.create_all()  # Create all tables
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
 
-        # Create and add users to the session
         users = create_users(num_users)
         db.session.add_all(users)
-        db.session.commit()  # Commit to generate user IDs
+        db.session.commit()
 
-        # Create and add clubs to the session
         clubs = create_clubs(num_clubs)
         db.session.add_all(clubs)
-        db.session.commit()  # Commit to generate club IDs
+        db.session.commit()
 
-        # Create and add events to the session
         events = create_events(users, clubs, min_events_per_club)
         db.session.add_all(events)
-        db.session.commit()  # Commit to generate event IDs
+        db.session.commit()
 
-        # Create and add announcements to the session
         announcements = create_announcements(users)
         db.session.add_all(announcements)
-        db.session.commit()  # Commit to generate announcement IDs
+        db.session.commit()
 
 if __name__ == '__main__':
     num_users = int(input("Enter the number of users to create: "))
-    num_clubs = 5  # Fixed number of clubs
-    min_events_per_club = 4  # Minimum number of events per club
+    num_clubs = 5
+    min_events_per_club = 4
 
     seed_data(num_users, num_clubs, min_events_per_club)

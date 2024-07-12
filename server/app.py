@@ -8,6 +8,8 @@ from flask_cors import CORS
 from models import db, User, Club, Event, Announcement, user_club
 
 app = Flask(__name__)
+CORS(app, origins=['http://localhost:3000'])
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 CORS(app, resources={r"/clubs": {"origins": "http://localhost:3000"}})
 
 # database and migrations initialization
@@ -24,8 +26,7 @@ api = Api(app)
 class Index(Resource):
     def get(self):
         response_dict = {"index": "Welcome to the Teen Space API"}
-        response = make_response(response_dict, 200)
-        return response
+        return make_response(response_dict, 200)
 
 api.add_resource(Index, '/')
 
@@ -33,12 +34,10 @@ api.add_resource(Index, '/')
 class Register(Resource):
     def post(self):
         data = request.get_json()
-        new_user = User(username=data['username'], password_hash=data['password'], email=data['email'])
+        new_user = User(username=data['username'], password=data['password'], email=data['email'])
         db.session.add(new_user)
         db.session.commit()
-        response_dict = new_user.to_dict()
-        response = make_response(response_dict, 201)
-        return response
+        return make_response({"id": new_user.id, "username": new_user.username}, 201)
 
 api.add_resource(Register, '/register')
 
@@ -47,11 +46,9 @@ class Login(Resource):
     def post(self):
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
-        if not user or user.password_hash != data['password']:
+        if not user or user.password != data['password']:
             return make_response({'message': 'Invalid credentials'}, 401)
-        response_dict = {'message': 'Login successful'}
-        response = make_response(response_dict, 200)
-        return response
+        return make_response({'message': 'Login successful'}, 200)
 
 api.add_resource(Login, '/login')
 
@@ -59,29 +56,32 @@ api.add_resource(Login, '/login')
 class Clubs(Resource):
     def get(self):
         clubs = Club.query.all()
-        response_dict_list = [club.to_dict() for club in clubs]
-        response = make_response(response_dict_list, 200)
-        return response
+        return make_response([{"id": club.id, "name": club.name, "description": club.description} for club in clubs], 200)
 
-# create a new club
     def post(self):
         data = request.get_json()
         new_club = Club(name=data['name'], description=data['description'])
         db.session.add(new_club)
         db.session.commit()
-        response_dict = new_club.to_dict()
-        response = make_response(response_dict, 201)
-        return response
+        return make_response({"id": new_club.id, "name": new_club.name, "description": new_club.description}, 201)
 
-api.add_resource(Clubs, '/clubs')
+api.add_resource(Clubs, '/clubs', endpoint='clubs_list')
 
 # Find clubs by id ( club when clicked )
 class ClubByID(Resource):
     def get(self, club_id):
         club = Club.query.filter_by(id=club_id).first()
-        response_dict = club.to_dict()
-        response = make_response(response_dict, 200)
-        return response
+        if not club:
+            return make_response({'message': 'Club not found'}, 404)
+        
+        club_data = {
+            "id": club.id,
+            "name": club.name,
+            "description": club.description,
+            "events": [{"id": e.id, "name": e.name, "date": e.date.isoformat()} for e in club.events],
+            "announcements": [{"id": a.id, "content": a.content} for a in club.announcements]
+        }
+        return make_response(club_data, 200)
 
 api.add_resource(ClubByID, '/clubs/<int:club_id>')
 
@@ -95,12 +95,9 @@ class JoinClub(Resource):
         club = Club.query.get_or_404(club_id)
         user.clubs.append(club)
         db.session.commit()
-        response_dict = {"message": "Joined club successfully"}
-        response = make_response(response_dict, 200)
-        return response
+        return make_response({"message": "Joined club successfully"}, 200)
 
 api.add_resource(JoinClub, '/clubs/<int:club_id>/join')
-
 
 # user leaving a club
 class LeaveClub(Resource):
@@ -112,23 +109,16 @@ class LeaveClub(Resource):
         club = Club.query.get_or_404(club_id)
         user.clubs.remove(club)
         db.session.commit()
-        response_dict = {"message": "Left club successfully"}
-        response = make_response(response_dict, 200)
-        return response
+        return make_response({"message": "Left club successfully"}, 200)
 
 api.add_resource(LeaveClub, '/clubs/<int:club_id>/leave')
-
 
 # List of events
 class Events(Resource):
     def get(self):
         events = Event.query.all()
-        response_dict_list = [event.to_dict() for event in events]
-        response = make_response(response_dict_list, 200)
-        return response
+        return make_response([{"id": event.id, "name": event.name, "date": event.date.isoformat()} for event in events], 200)
 
-
-# create a new event
     def post(self):
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
@@ -137,27 +127,9 @@ class Events(Resource):
         new_event = Event(name=data['name'], date=datetime.strptime(data['date'], '%Y-%m-%d'), user_id=user.id, club_id=data['club_id'])
         db.session.add(new_event)
         db.session.commit()
-        response_dict = new_event.to_dict()
-        response = make_response(response_dict, 201)
-        return response
+        return make_response({"id": new_event.id, "name": new_event.name, "date": new_event.date.isoformat()}, 201)
 
 api.add_resource(Events, '/events')
-
-# create new announcements
-# class Announcements(Resource):
-#     def post(self):
-#         data = request.get_json()
-#         user = User.query.filter_by(username=data['username']).first()
-#         if not user:
-#             return make_response({'message': 'User not found'}, 404)
-#         new_announcement = Announcement(content=data['content'], user_id=user.id)
-#         db.session.add(new_announcement)
-#         db.session.commit()
-#         response_dict = new_announcement.to_dict()
-#         response = make_response(response_dict, 201)
-#         return response
-
-# api.add_resource(Announcements, '/announcements')
 
 with app.app_context():
     db.create_all()
