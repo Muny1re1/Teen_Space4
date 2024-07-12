@@ -134,6 +134,31 @@ class Events(Resource):
 
 api.add_resource(Events, '/events')
 
+# Announcements
+class Announcements(Resource):
+    def get(self):
+        announcements = Announcement.query.all()
+        return make_response([{'id': announcement.id, 'content': announcement.content, 'club_id':announcement.club_id} for announcement in announcements], 200)
+
+    def post(self):
+        data = request.get_json()
+        user = User.query.filter_by(username=data['username']).first()
+        if not user:
+            return make_response({'message': 'No such user'}, 404)
+        new_announcement = Announcement(content=data['content'], club_id=data['club_id'])
+        db.session.add(new_announcement)
+        db.session.commit()
+        response = {'content': new_announcement.content}
+        return make_response(response, 201)
+
+api.add_resource(Announcements, '/announcements')
+
+class AnnouncementsByClubId(Resource):
+    def get(self, club_id):
+        announcements = Announcement.query.filter_by(club_id=club_id).all()
+        return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
+
+api.add_resource(AnnouncementsByClubId, '/club/<int:club_id>/announcements')
 
 with app.app_context():
     db.create_all()
