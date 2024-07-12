@@ -97,13 +97,13 @@ function Login() {
 
           <div className="btnn">
           <Link to="/mainpage" className="login-btn">
-            Login <i class="fa-solid fa-right-to-bracket"></i>
+            Login
           </Link>
           </div>
 
-          <div className="signup">
+          <div className="signupp">
             <h5>
-              Don't have an account?<Link to="/signup"><span>Sign Up</span></Link>
+              Don't have an account?<Link to="/signup"><span><i className="fa-solid fa-user-plus"></i></span></Link>
             </h5>
           </div>
         </form>
