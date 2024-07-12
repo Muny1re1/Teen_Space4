@@ -16,16 +16,14 @@ user_club = db.Table(
 
 class User(db.Model, SerializerMixin):
     __tablename__ = "user"
+    serialize_rules = ('-clubs.users', '-events.user', '-announcements.user')
+    
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True)
 
-
-    # many-to-many relationship
     clubs = db.relationship("Club", secondary=user_club, back_populates="users", cascade="all, delete")
-
-    # one-to-many relationships
     events = db.relationship("Event", back_populates="user", cascade="all, delete")
     announcements = db.relationship("Announcement", back_populates="user", cascade="all, delete")
 
@@ -34,28 +32,29 @@ class User(db.Model, SerializerMixin):
 
 class Club(db.Model, SerializerMixin):
     __tablename__ = "club"
+    serialize_rules = ('-users.clubs', '-events.club', '-announcements.club')
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
 
-    # many-to-many relationship
     users = db.relationship("User", secondary=user_club, back_populates="clubs", cascade="all, delete")
-
-    # one-to-many relationship
     events = db.relationship("Event", back_populates="club", cascade="all, delete")
+    announcements = db.relationship("Announcement", back_populates="club", cascade="all, delete")
 
     def __repr__(self):
         return f'<Club {self.name}>'
 
 class Event(db.Model, SerializerMixin):
     __tablename__ = "event"
+    serialize_rules = ('-user.events', '-club.events')
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     date = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'))
 
-    # one-to-many relationships
     user = db.relationship("User", back_populates="events")
     club = db.relationship("Club", back_populates="events")
 
@@ -64,9 +63,15 @@ class Event(db.Model, SerializerMixin):
 
 class Announcement(db.Model, SerializerMixin):
     __tablename__ = "announcement"
+    serialize_rules = ('-user.announcements', '-club.announcements')
+    
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    club_id = db.Column(db.Integer, db.ForeignKey('club.id'))
 
-    # one-to-many relationship
     user = db.relationship("User", back_populates="announcements")
+    club = db.relationship("Club", back_populates="announcements")
+
+    def __repr__(self):
+        return f'<Announcement {self.id}>'
