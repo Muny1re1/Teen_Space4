@@ -1,7 +1,8 @@
-import React from 'react';
+	import React from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
-import "./Login.css"
+import * as Yup from 'yup';  // Import Yup for validation
+import './Login';
 
 function SignUp() {
   const formik = useFormik({
@@ -11,49 +12,123 @@ function SignUp() {
       password: '',
       confirmPassword: '',
     },
+    validationSchema: Yup.object({
+      username: Yup.string()
+        .min(3, 'Username must be at least 3 characters')
+        .required('Required'),
+      email: Yup.string()
+        .email('Invalid email address')
+        .required('Required'),
+      password: Yup.string()
+        .min(8, 'Password must be at least 8 characters')
+        .required('Required'),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+        .required('Required'),
+    }),
     onSubmit: (values) => {
-      console.log(values);
+      fetch('http://localhost:5000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Success:', data);
+          // Handle success, e.g., redirect to login or update state
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Handle error, e.g., display error message
+        });
     },
   });
 
   return (
-    <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={formik.handleSubmit}>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            onChange={formik.handleChange}
-            value={formik.values.username}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            onChange={formik.handleChange}
-            value={formik.values.password}
-          />
-        </div>
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            onChange={formik.handleChange}
-            value={formik.values.confirmPassword}
-          />
-        </div>
-        <Link to="/mainpage">Sign Up</Link>
-      </form>
-    </div>
+<div className="signup">
+  <div className="btn btn-back">
+    <Link to="/">
+      <i className="fa-solid fa-arrow-left-long"></i>
+    </Link>
+  </div>
+  <div className="form-container starter">
+    <form onSubmit={formik.handleSubmit}>
+      <h1>Join TeenSpace</h1>
+      <h2 className="emoji">😊</h2>
+      <h3>Create your TeenSpace account</h3>
+      <p>Let's get you started on your journey</p>
+      <div className="form-group">
+        <input
+          id="username"
+          name="username"
+          type="text"
+          placeholder="Username"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.username}
+        />
+        <i className="fa-solid fa-user"></i>
+      </div>
+      <div className="form-group">
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="Email"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.email}
+        />
+        <i className="fa-solid fa-envelope"></i>
+      </div>
+      <div className="form-group">
+        <input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Password"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.password}
+        />
+        <i className="fa-solid fa-lock"></i>
+      </div>
+      <div className="form-group">
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          placeholder="Confirm Password"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.confirmPassword}
+        />
+        <i className="fa-solid fa-lock"></i>
+      </div>
+      <div className="btnn">
+        <button type="submit" className="login-btn">
+          Sign Up 
+        </button>
+      </div>
+      <div className="signupp">
+        <h5>
+          Already have an account? <Link to="/login"><span><i class="fa-solid fa-right-to-bracket"></i></span></Link>
+        </h5>
+      </div>
+    </form>
+  </div>
+</div>
+
+
   );
 }
 
 export default SignUp;
+

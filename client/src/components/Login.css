@@ -9,7 +9,9 @@
     text-decoration: none;
 }
 
-.login{
+.login,
+.signup
+{
     width: 100%;
     height: 100vh;
     background-image: url('../assets/loginn.png');
@@ -27,6 +29,7 @@
     align-items: center; 
     margin-right: 20px; 
 }
+
 
 .starter {
     margin-top: 45px;
@@ -186,6 +189,18 @@
     transition: all.3s ease-in-out;
 }
 
+button{
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: wheat;
+}
+
+.signup .btnn{
+    margin-left: 55px;
+}
+
 .starter h5{
     text-align: center;
     font-size: 15px;
@@ -197,14 +212,12 @@
 }
 
 .starter h5 span{
-    border-bottom: 2px solid rgb(173, 173, 255);
     margin-left: 10px;
-    font-size: 23px;
+    font-size: 30px;
     color: rgb(173, 173, 255);
 }
 .starter h5 span:hover{
     color: rgb(137, 255, 249);
-    border-bottom: 2px solid rgb(168, 252, 241);
     cursor: pointer;
 }
 
