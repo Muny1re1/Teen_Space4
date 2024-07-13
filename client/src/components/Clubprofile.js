@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import './Clubprofile.css';
 
 function Clubprofile() {
+
   const { id } = useParams();
   const [club, setClub] = useState(null);
   const [events, setEvents] = useState([]);
@@ -83,6 +84,11 @@ function Clubprofile() {
       </div>
       
       <div className='content'>
+        <div className='addformm'>
+        <Link to="/addform">
+            <i className="fa-solid fa-plus fa-beat"></i>
+        </Link>
+        </div>
         <div className='club-events'>
           <h2>Events</h2>
           <ul>
