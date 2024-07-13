@@ -1,4 +1,4 @@
-	import React from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';  // Import Yup for validation
@@ -26,7 +26,7 @@ function SignUp() {
         .oneOf([Yup.ref('password'), null], 'Passwords must match')
         .required('Required'),
     }),
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: {
@@ -42,7 +42,8 @@ function SignUp() {
         })
         .then(data => {
           console.log('Success:', data);
-          // Handle success, e.g., redirect to login or update state
+          window.alert("Your Signup was successful, Welcome to TeenSpace");
+          resetForm(); // Reset the form
         })
         .catch(error => {
           console.error('Error:', error);
