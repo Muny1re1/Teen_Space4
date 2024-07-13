@@ -10,7 +10,7 @@ function Login() {
       username: "",
       password: "",
     },
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       console.log(values);
       try {
         const response = await fetch("http://localhost:5000/login", {
@@ -25,6 +25,8 @@ function Login() {
         }
         const data = await response.json();
         console.log("Login successful:", data);
+        window.alert("Welcome back to your TeenSpace account `${username}`")
+        resetForm();
         // Redirect to main page or club dashboard
         window.location.href = "/mainpage";
       }
