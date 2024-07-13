@@ -163,6 +163,19 @@ class AnnouncementsByClubId(Resource):
 
 api.add_resource(AnnouncementsByClubId, '/club/<int:club_id>/announcements')
 
+@app.route('/add-post', methods=['POST'])
+def add_post():
+    print("Received request:", request.method, request.url)
+    announcement_content = request.form['announcement']
+    event_name = request.form['event']
+    event_date = request.form['date']
+    announcement = Announcement(content=announcement_content)
+    event = Event(name=event_name, date=event_date)
+    db.session.add(announcement)
+    db.session.add(event)
+    db.session.commit()
+    return jsonify({'message': 'Post added successfully'}), 201
+
 with app.app_context():
     db.create_all()
 
