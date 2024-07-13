@@ -77,12 +77,15 @@ class ClubByID(Resource):
         if not club:
             return make_response({'message': 'Club not found'}, 404)
         
+        events = Event.query.filter_by(club_id=club_id).all()
+        announcements = Announcement.query.filter_by(club_id=club_id).all()
+        
         club_data = {
             "id": club.id,
             "name": club.name,
             "description": club.description,
-            "events": [{"id": e.id, "name": e.name, "date": e.date.isoformat()} for e in club.events],
-            "announcements": [{"id": a.id, "content": a.content} for a in club.announcements]
+            "events": [{"id": e.id, "name": e.name, "date": e.date.isoformat()} for e in events],
+            "announcements": [{"id": a.id, "content": a.content} for a in announcements]
         }
         return make_response(club_data, 200)
 
@@ -136,9 +139,9 @@ api.add_resource(Events, '/events')
 
 # Announcements
 class Announcements(Resource):
-    def get(self):
-        announcements = Announcement.query.all()
-        return make_response([{'id': announcement.id, 'content': announcement.content, 'club_id':announcement.club_id} for announcement in announcements], 200)
+    def get(self, club_id):
+        announcements = Announcement.query.filter_by(club_id=club_id).all()
+        return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
 
     def post(self):
         data = request.get_json()
