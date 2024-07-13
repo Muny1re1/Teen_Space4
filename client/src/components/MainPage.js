@@ -31,7 +31,7 @@ function MainPage() {
         // You can also set an error state here if you want to display it in your UI
       });
   };
-  
+
   return (
     <div>
       <div className="main-container">
@@ -45,6 +45,11 @@ function MainPage() {
               </li>
               <li>
                 <Link to="/login" className="login-btn" title="Login">
+                  <i className="fa-solid fa-right-to-bracket"></i>
+                </Link>
+              </li>
+              <li>
+                <Link to="logout" className="login-btn" title="Logout">
                   <i className="fa-solid fa-right-to-bracket"></i>
                 </Link>
               </li>

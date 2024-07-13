@@ -48,12 +48,33 @@ class Login(Resource):
         user = User.query.filter_by(username=data['username']).first()
         if not user or user.password != data['password']:
             return make_response({'message': 'Invalid credentials'}, 401)
-        return make_response({'message': 'Login successful'}, 200)
+
+        session["user_id"] = user.id
+        response_dict = user.to_dict()
+        return make_response(response_dict, {'message': 'Login successful'}, 200)
 
     # def get():
 
 
 api.add_resource(Login, '/login')
+
+class Logout(Resource):
+    def delete(self):
+        session["user_id"] = None
+        return {"message": "No content"},204
+api.add_resource(Logout, "/logout")
+
+class CheckSession(Resource):
+    def get(self):
+
+        user_id = session.get('user_id')
+        if user_id:
+            user = User.query.filter(User.id == user_id).first()
+            return user.to_dict(), 200
+
+        return {}, 401
+api.add_resource(CheckSession, "/checksession")
+
 
 # List of clubs
 class Clubs(Resource):
@@ -76,10 +97,10 @@ class ClubByID(Resource):
         club = Club.query.filter_by(id=club_id).first()
         if not club:
             return make_response({'message': 'Club not found'}, 404)
-        
+
         events = Event.query.filter_by(club_id=club_id).all()
         announcements = Announcement.query.filter_by(club_id=club_id).all()
-        
+
         club_data = {
             "id": club.id,
             "name": club.name,
