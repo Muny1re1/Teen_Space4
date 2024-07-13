@@ -20,6 +20,7 @@ function Clubprofile() {
       });
       if (response.ok) {
         setIsMember(true);
+        window.alert("")
       }
     } catch (error) {
       console.error('Error joining club:', error);
