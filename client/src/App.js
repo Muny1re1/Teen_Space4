@@ -6,6 +6,7 @@ import MainPage from './components/MainPage';
 import Landingpage from './components/Landingpage';
 import Clubprofile from './components/Clubprofile';
 import Addform from './components/Addform';
+import Logout from './components/Logout';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/mainpage" element={<MainPage />} />
           <Route path="/club/:id" element={<Clubprofile />} />
           <Route path="/addform" element={<Addform />} />
+          <Route path="/logout" element={<Logout/>}/>
         </Routes>
       </div>
     </BrowserRouter>
