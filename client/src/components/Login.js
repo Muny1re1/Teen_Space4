@@ -25,7 +25,7 @@ function Login() {
         }
         const data = await response.json();
         console.log("Login successful:", data);
-        window.alert("Welcome back to your TeenSpace account `${username}`")
+        window.alert("Welcome back to your TeenSpace account")
         resetForm();
         // Redirect to main page or club dashboard
         window.location.href = "/mainpage";
