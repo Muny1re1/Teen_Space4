@@ -11,7 +11,7 @@ function Clubprofile() {
 
   const handleJoin = async () => {
     try {
-      const response = await fetch(`/clubs/${id}/join`, {
+      const response = await fetch(`http://localhost:5000/clubs/${id}/join`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,12 +23,13 @@ function Clubprofile() {
       }
     } catch (error) {
       console.error('Error joining club:', error);
+      window.alert("Sorry! There was an error in adding you to the club, try again later!")
     }
   };
   
   const handleLeave = async () => {
     try {
-      const response = await fetch(`/clubs/${id}/leave`, {
+      const response = await fetch(`http://localhost:5000/clubs/${id}/leave`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +47,7 @@ function Clubprofile() {
   useEffect(() => {
     const fetchClubData = async () => {
       try {
-        const clubResponse = await fetch(`/clubs/${id}`);
+        const clubResponse = await fetch(`http://localhost:5000/clubs/${id}`);
         if (!clubResponse.ok) {
           throw new Error(`HTTP error! status: ${clubResponse.status}`);
         }
@@ -56,13 +57,13 @@ function Clubprofile() {
         setNotifications(clubData.announcements);
       } catch (error) {
         console.error('Error fetching club data:', error);
+        setClub(null); // or some default value
       }
     };
   
     fetchClubData();
   }, [id]);
   
-
   if (!club) return <div>Loading...</div>;
 
   return (
