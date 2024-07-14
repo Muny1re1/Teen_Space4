@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
+import { number } from 'yup';
 
 function Addform() {
   const formik = useFormik({
     initialValues: {
       announcement: '',
-      event: '',
+      club_id: '',
       date: '',
     },
   });
+  // console.log(formik.values)
 
   const [error, setError] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const formData = new FormData();
-      formData.append('announcement', formik.values.announcement);
-      formData.append('event', formik.values.event);
-      formData.append('date', formik.values.date);
+      const formData = JSON.stringify(formik.values); 
+      // const formData = new FormData();
+      // formData.append('announcement', formik.values.announcement);
+      // formData.append('event', formik.values.club_id);
+      // formData.append('date', formik.values.date);
+      // console.log(JSON.stringify(formData));
+      console.log(formData);
 
-      const response = await fetch('http://localhost:5000/add-post', {
+      const response = await fetch('http://localhost:5000/announcements', {
         method: 'POST',
         body: formData,
       });
@@ -60,11 +65,11 @@ function Addform() {
           </div>
           <div className="form-group">
             <input
-              id="event"
-              name="event"
-              type="text"
-              placeholder="New Event"
-              value={formik.values.event}
+              id="club_id"
+              name="club_id"
+              type="number"
+              placeholder="club_id"
+              value={formik.values.club_id}
               onChange={formik.handleChange}
             />
             <i class="fa-solid fa-calendar-days"></i>

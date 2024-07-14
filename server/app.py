@@ -160,8 +160,8 @@ api.add_resource(Events, '/events')
 
 # Announcements
 class Announcements(Resource):
-    def get(self, club_id):
-        announcements = Announcement.query.filter_by(club_id=club_id).all()
+    def get(self):
+        announcements = Announcement.query.all()
         return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
 
     def post(self):
@@ -169,7 +169,8 @@ class Announcements(Resource):
         user = User.query.filter_by(username=data['username']).first()
         if not user:
             return make_response({'message': 'No such user'}, 404)
-        new_announcement = Announcement(content=data['content'], club_id=data['club_id'])
+
+        new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'], user_id=1 )
         db.session.add(new_announcement)
         db.session.commit()
         response = {'content': new_announcement.content}
@@ -184,18 +185,17 @@ class AnnouncementsByClubId(Resource):
 
 api.add_resource(AnnouncementsByClubId, '/club/<int:club_id>/announcements')
 
-@app.route('/add-post', methods=['POST'])
-def add_post():
-    print("Received request:", request.method, request.url)
-    announcement_content = request.form['announcement']
-    event_name = request.form['event']
-    event_date = request.form['date']
-    announcement = Announcement(content=announcement_content)
-    event = Event(name=event_name, date=event_date)
-    db.session.add(announcement)
-    db.session.add(event)
-    db.session.commit()
-    return jsonify({'message': 'Post added successfully'}), 201
+# @app.route('/addform', methods=['POST'])
+# def add_post():
+#     print("Received request:", request.method, request.url)
+#     announcement_content = request.form['announcement']
+#     event_name = request.form['club_id']
+#     event_date = request.form['date']
+#     announcement = Announcement(content=announcement_content)
+#     club_id = Announcement(club_id=event_name)
+#     db.session.add(announcement)
+#     db.session.commit()
+#     return jsonify({'message': 'Post added successfully'}), 201
 
 with app.app_context():
     db.create_all()
