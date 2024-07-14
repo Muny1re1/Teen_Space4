@@ -1,23 +1,28 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 function Logout({ onLogout }) {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     try {
       const response = await fetch("http://localhost:5000/logout", {
-        method: "POST",
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+
       const data = await response.json();
       console.log("Logout successful:", data);
       onLogout();
-      window.location.href = "/"; // Redirect to home page
+      navigate("/");
     } catch (error) {
       console.log(error);
     }
@@ -32,9 +37,9 @@ function Logout({ onLogout }) {
       </div>
       <div className="btnn">
         <h1>Are you sure you want to logout?</h1>
-        <Link to="/" className="">
+        <button onClick={handleLogout}>
           Logout
-        </Link>
+        </button>
         <div className="signupp">
           <h5>
             <Link to="/mainpage"><span><i className="fa-solid fa-user"></i> Cancel</span></Link>

@@ -1,9 +1,10 @@
 import React from "react";
 import { useFormik } from "formik";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 function Login() {
+  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -19,29 +20,33 @@ function Login() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(values),
+          credentials: "include",
         });
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         const data = await response.json();
         console.log("Login successful:", data);
-        window.alert("Welcome back to your TeenSpace account")
+        window.alert("Welcome back to your TeenSpace account");
         resetForm();
         // Redirect to main page or club dashboard
-        window.location.href = "/mainpage";
-      }
-      catch (error) {
+        navigate("/mainpage");
+      } catch (error) {
         console.log(error);
+        window.alert("Login failed. Please check your credentials and try again.");
       }
     },
   });
+
   const grinningEmoji = "😁";
 
   return (
     <div className="login">
       <div className="btn btn-back">
         <Link to="/">
-          <i class="fa-solid fa-arrow-left-long"></i>
+          <i className="fa-solid fa-arrow-left-long"></i>
         </Link>
       </div>
       <div className="form-container starter">
@@ -49,7 +54,7 @@ function Login() {
           <h1>Welcome Back</h1>
           <h2 className="emoji">{grinningEmoji}</h2>
           <h3>Sign in with your TeenSpace account</h3>
-          <p>Let's get you signed in and straight to your activites</p>
+          <p>Let's get you signed in and straight to your activities</p>
           <div className="form-group">
             <input
               id="email"
@@ -60,19 +65,19 @@ function Login() {
               onChange={formik.handleChange}
               value={formik.values.email}
             />
-            <i class="fa-solid fa-envelope"></i>
+            <i className="fa-solid fa-envelope"></i>
           </div>
           <div className="form-group">
             <input
               id="username"
               name="username"
-              type="username"
+              type="text"
               placeholder="Username"
               required
               onChange={formik.handleChange}
               value={formik.values.username}
             />
-            <i class="fa-solid fa-user"></i>
+            <i className="fa-solid fa-user"></i>
           </div>
           <div className="form-group">
             <input
@@ -84,28 +89,31 @@ function Login() {
               onChange={formik.handleChange}
               value={formik.values.password}
             />
-            <i class="fa-solid fa-lock"></i>
+            <i className="fa-solid fa-lock"></i>
           </div>
 
-          <div class="remfo">
+          <div className="remfo">
             <div className="check">
               <input type="checkbox" name="remember" id="remember" />
-              <label for="remember">Remember me</label>
+              <label htmlFor="remember">Remember me</label>
             </div>
-            <div>
-              Forgot Password?
-            </div>
+            <div>Forgot Password?</div>
           </div>
 
           <div className="btnn">
-          <Link to="/mainpage" className="login-btn">
-            Login
-          </Link>
+            <button className="login-btn" type="submit">
+              Login
+            </button>
           </div>
 
           <div className="signupp">
             <h5>
-              Don't have an account?<Link to="/signup"><span><i className="fa-solid fa-user-plus"></i></span></Link>
+              Don't have an account?
+              <Link to="/signup">
+                <span>
+                  <i className="fa-solid fa-user-plus"></i>
+                </span>
+              </Link>
             </h5>
           </div>
         </form>

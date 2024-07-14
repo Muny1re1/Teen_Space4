@@ -1,26 +1,25 @@
-# basic imports
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, jsonify, session
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
 from flask_cors import CORS
-
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from models import db, User, Club, Event, Announcement, user_club
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:3000'])
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
-CORS(app, resources={r"/clubs": {"origins": "http://localhost:3000"}})
-
-# database and migrations initialization
+app.secret_key = 'secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
+app.config['JWT_SECRET_KEY'] = 'secret'  # Change this to a random secret key
 
+# Configure CORS
+CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
+
+# Initialize extensions
 migrate = Migrate(app, db)
 db.init_app(app)
-
 api = Api(app)
+jwt = JWTManager(app)
 
 # Home page
 class Index(Resource):
@@ -37,7 +36,17 @@ class Register(Resource):
         new_user = User(username=data['username'], password=data['password'], email=data['email'])
         db.session.add(new_user)
         db.session.commit()
-        return make_response({"id": new_user.id, "username": new_user.username}, 201)
+        
+        # Create the response
+        response = make_response(
+            jsonify({"id": new_user.id, "username": new_user.username}),
+            201
+        )
+        
+        # Add headers to the response (CORS headers are automatically managed by flask-cors)
+        response.headers['Content-Type'] = 'application/json'
+        
+        return response
 
 api.add_resource(Register, '/register')
 
@@ -49,32 +58,37 @@ class Login(Resource):
         if not user or user.password != data['password']:
             return make_response({'message': 'Invalid credentials'}, 401)
 
-        session["user_id"] = user.id
-        response_dict = user.to_dict()
-        return make_response(response_dict, {'message': 'Login successful'}, 200)
-
-    # def get():
-
+        access_token = create_access_token(identity=user.id)
+        response = {
+            'access_token': access_token,
+            'user': user.to_dict()
+        }
+        return make_response(jsonify(response), 200)
 
 api.add_resource(Login, '/login')
 
+# Logout
 class Logout(Resource):
+    @jwt_required()
     def delete(self):
-        session["user_id"] = None
-        return {"message": "No content"},204
+        session.clear()
+        response = make_response({"message": "Successfully logged out"}, 200)
+        response.set_cookie('session', '', expires=0)  # Clear session cookie
+        return response
+
 api.add_resource(Logout, "/logout")
 
+# Check session
 class CheckSession(Resource):
+    @jwt_required()
     def get(self):
-
-        user_id = session.get('user_id')
-        if user_id:
-            user = User.query.filter(User.id == user_id).first()
+        user_id = get_jwt_identity()
+        user = User.query.filter(User.id == user_id).first()
+        if user:
             return user.to_dict(), 200
-
         return {}, 401
-api.add_resource(CheckSession, "/checksession")
 
+api.add_resource(CheckSession, "/checksession")
 
 # List of clubs
 class Clubs(Resource):
@@ -82,6 +96,7 @@ class Clubs(Resource):
         clubs = Club.query.all()
         return make_response([{"id": club.id, "name": club.name, "description": club.description} for club in clubs], 200)
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
         new_club = Club(name=data['name'], description=data['description'])
@@ -91,7 +106,7 @@ class Clubs(Resource):
 
 api.add_resource(Clubs, '/clubs', endpoint='clubs_list')
 
-# Find clubs by id ( club when clicked )
+# Find clubs by id (club when clicked)
 class ClubByID(Resource):
     def get(self, club_id):
         club = Club.query.filter_by(id=club_id).first()
@@ -112,8 +127,9 @@ class ClubByID(Resource):
 
 api.add_resource(ClubByID, '/clubs/<int:club_id>')
 
-# user joining a club
+# User joining a club
 class JoinClub(Resource):
+    @jwt_required()
     def post(self, club_id):
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
@@ -126,8 +142,9 @@ class JoinClub(Resource):
 
 api.add_resource(JoinClub, '/clubs/<int:club_id>/join')
 
-# user leaving a club
+# User leaving a club
 class LeaveClub(Resource):
+    @jwt_required()
     def post(self, club_id):
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
@@ -146,6 +163,7 @@ class Events(Resource):
         events = Event.query.all()
         return make_response([{"id": event.id, "name": event.name, "date": event.date.isoformat()} for event in events], 200)
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
@@ -164,13 +182,10 @@ class Announcements(Resource):
         announcements = Announcement.query.all()
         return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
-        user = User.query.filter_by(username=data['username']).first()
-        if not user:
-            return make_response({'message': 'No such user'}, 404)
-
-        new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'], user_id=1 )
+        new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'], user_id=user.id)
         db.session.add(new_announcement)
         db.session.commit()
         response = {'content': new_announcement.content}
@@ -184,18 +199,6 @@ class AnnouncementsByClubId(Resource):
         return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
 
 api.add_resource(AnnouncementsByClubId, '/club/<int:club_id>/announcements')
-
-# @app.route('/addform', methods=['POST'])
-# def add_post():
-#     print("Received request:", request.method, request.url)
-#     announcement_content = request.form['announcement']
-#     event_name = request.form['club_id']
-#     event_date = request.form['date']
-#     announcement = Announcement(content=announcement_content)
-#     club_id = Announcement(club_id=event_name)
-#     db.session.add(announcement)
-#     db.session.commit()
-#     return jsonify({'message': 'Post added successfully'}), 201
 
 with app.app_context():
     db.create_all()

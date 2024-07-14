@@ -49,8 +49,8 @@ function MainPage() {
                 </Link>
               </li>
               <li>
-                <Link to="logout" className="login-btn" title="Logout">
-                  <i className="fa-solid fa-right-to-bracket"></i>
+                <Link to="/logout" className="login-btn" title="Logout">
+                  <i className="fa-solid fa-right-from-bracket"></i>
                 </Link>
               </li>
             </ul>
