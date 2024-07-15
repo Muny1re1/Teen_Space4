@@ -88,10 +88,10 @@ function MainPage() {
                     <div className="modal-content">
                       <h1>Are you sure you want to logout?</h1> 
                       <Link to="/" className="logout">
-                        Yes
+                        <span className="centered-text">Yes</span>
                       </Link>
                       <button onClick={() => setShowModal(false)}>
-                        No
+                      <span className="centered-text">No</span>
                       </button>
                     </div>
                   </div>
