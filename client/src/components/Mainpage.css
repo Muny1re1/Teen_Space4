@@ -40,7 +40,9 @@
     color: aliceblue;
 }
 
-.nav-links a{
+.nav-links a
+{
+    border: none;
     margin-left: -2px;
     text-decoration: none;
     color: rgb(255, 175, 84);
@@ -52,11 +54,49 @@
     transition: all.3s ease-in-out;
 }
 
-.nav-links a:hover{
+button
+{
+    text-align: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    margin-left: 15px;
+    color: rgb(255, 175, 84);
+    font-size: 25px;
+    font-weight: 500;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    transition: all.3s ease-in-out;
+}
+
+.nav-links a:hover,
+button:hover
+{
     transform: scale(1.09);
     color: #fd9400;
-    border-bottom: 2px solid rgb(238, 124, 43);
 }
+
+.nav-links a::after,
+.logout-btn button::after
+{
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #fd9400;
+    opacity: 0;
+    transition: all.3s ease-in-out;
+}
+
+.nav-links a:hover::after,
+.logout-btn button:hover::after 
+{
+    opacity: 1;
+}
+
 
 .nav-links a .login-btn {
     position: relative;
@@ -110,4 +150,9 @@
     margin-top: 20px;
     padding: 20px;
 }
+
+.blurred {
+    filter: blur(5px);
+    pointer-events: none;
+  }
 
