@@ -33,32 +33,6 @@ function MainPage() {
       });
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/logout", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log("Logout successful:", data);
-      // Update your app state to reflect the logout
-      setShowModal(false);
-  
-      // Redirect to the landing page
-      window.location.href = "/";
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <div>
       <div className="main-container">
