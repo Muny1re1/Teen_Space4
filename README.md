@@ -53,7 +53,7 @@ Teen Space is licensed under the [MIT License](https://opensource.org/licenses/M
 **<h2 align="center">Contact Us</h2>**
 Have questions, feedback, or suggestions? Reach out to us at:
 * [**Abby**](mailto:sarahabby541@gmail.com)
-* [**Andy**](mailto:jandyjik3@gmail.com)
-* [**Arnold**](mailto:sarahabby541@gmail.com)
+* [**Andy**](mailto:munyiriandy@gmail.com)
+* [**Arnold**](mailto:kanjaarnold@gmail.com)
 * [**Bravin**](mailto:bravink599@gmail.com)
-* [**Matthew**](mailto:sarahabby541@gmail.com) 
+* [**Matthew**](mailto:mattmuhande@gmail.com) 
