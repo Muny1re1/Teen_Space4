@@ -3,13 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import './Clubprofile.css';
 
 function Clubprofile() {
-
   const { id } = useParams();
   const [club, setClub] = useState(null);
   const [events, setEvents] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [isMember, setIsMember] = useState(false);
-  const api = "http://localhost:5000"
+  const api = "http://localhost:5000";
 
   let token = null;
 
@@ -20,15 +19,7 @@ function Clubprofile() {
         headers: {
           'Content-Type': 'application/json',
         },
-<<<<<<< HEAD
-        credentials: 'include',
-        body: JSON.stringify({ username: 'current_user_username' }),
-=======
-        body: JSON.stringify({
-          username: 'your_username',
-          password: 'your_password',
-        }),
->>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
+        body: JSON.stringify({ username: 'your_username', password: 'your_password' }),
       });
       const tokenData = await response.json();
       token = tokenData.token;
@@ -38,7 +29,7 @@ function Clubprofile() {
       return null;
     }
   };
-  
+
   const handleJoin = async () => {
     try {
       const token = await generateToken();
@@ -54,7 +45,7 @@ function Clubprofile() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ userId }),
       });
@@ -69,7 +60,7 @@ function Clubprofile() {
       window.alert('Sorry! There was an error in adding you to the club, try again later!');
     }
   };
-  
+
   const handleLeave = async () => {
     try {
       const token = await generateToken();
@@ -85,14 +76,9 @@ function Clubprofile() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
-<<<<<<< HEAD
-        credentials: 'include',
-        body: JSON.stringify({ username: 'current_user_username' }),
-=======
         body: JSON.stringify({ userId }),
->>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
       });
       if (clubResponse.ok) {
         setIsMember(false);
@@ -103,7 +89,7 @@ function Clubprofile() {
       console.error('Error leaving club:', error);
     }
   };
-  
+
   useEffect(() => {
     const fetchClubData = async () => {
       try {
@@ -120,10 +106,10 @@ function Clubprofile() {
         setClub(null); // or some default value
       }
     };
-  
+
     fetchClubData();
   }, [id]);
-  
+
   if (!club) return <div>Loading...</div>;
 
   return (
@@ -140,12 +126,12 @@ function Clubprofile() {
           </Link>
         </div>
       </div>
-      
+
       <div className='content'>
         <div className='addformm'>
-        <Link to="/addform">
+          <Link to="/addform">
             <i className="fa-solid fa-plus fa-beat"></i>
-        </Link>
+          </Link>
         </div>
         <div className='club-events'>
           <h2>Events</h2>
