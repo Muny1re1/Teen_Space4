@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
-// import { number } from 'yup';
 
 function Addform() {
   const formik = useFormik({
@@ -11,20 +10,13 @@ function Addform() {
       date: '',
     },
   });
-  // console.log(formik.values)
 
   const [error, setError] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const formData = JSON.stringify(formik.values); 
-      // const formData = new FormData();
-      // formData.append('announcement', formik.values.announcement);
-      // formData.append('event', formik.values.club_id);
-      // formData.append('date', formik.values.date);
-      // console.log(JSON.stringify(formData));
-      console.log(formData);
+      const formData = JSON.stringify(formik.values);
 
       const response = await fetch('http://localhost:5000/announcements', {
         method: 'POST',
@@ -35,8 +27,7 @@ function Addform() {
       });
 
       if (response.ok) {
-        window.alert("Added Successfully")
-        // data added successfully, redirect to another page or show a success message
+        window.alert("Added Successfully");
       } else {
         setError('Failed to add data');
       }
@@ -92,7 +83,7 @@ function Addform() {
               Add
             </button>
           </div>
-          {error && <div style={{ color: 'ed' }}>{error}</div>}
+          {error && <div style={{ color: 'red' }}>{error}</div>}
         </form>
       </div>
     </div>
