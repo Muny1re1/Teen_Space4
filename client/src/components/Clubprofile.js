@@ -9,39 +9,95 @@ function Clubprofile() {
   const [events, setEvents] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [isMember, setIsMember] = useState(false);
+  const api = "http://localhost:5000"
 
-  const handleJoin = async () => {
+  let token = null;
+
+  const generateToken = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/clubs/${id}/join`, {
+      const response = await fetch('http://localhost:5000/generate_token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+<<<<<<< HEAD
         credentials: 'include',
         body: JSON.stringify({ username: 'current_user_username' }),
+=======
+        body: JSON.stringify({
+          username: 'your_username',
+          password: 'your_password',
+        }),
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
       });
-      if (response.ok) {
+      const tokenData = await response.json();
+      token = tokenData.token;
+      return token;
+    } catch (error) {
+      console.error('Error generating token:', error);
+      return null;
+    }
+  };
+  
+  const handleJoin = async () => {
+    try {
+      const token = await generateToken();
+      const response = await fetch('http://localhost:5000/checksession', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      const userId = data.id;
+      const clubResponse = await fetch(`${api}/clubs/${id}/join`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (clubResponse.ok) {
         setIsMember(true);
-        window.alert("")
+        window.alert('You have successfully joined the club!');
+      } else {
+        throw new Error(`Error joining club: ${clubResponse.status}`);
       }
     } catch (error) {
       console.error('Error joining club:', error);
-      window.alert("Sorry! There was an error in adding you to the club, try again later!")
+      window.alert('Sorry! There was an error in adding you to the club, try again later!');
     }
   };
   
   const handleLeave = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/clubs/${id}/leave`, {
+      const token = await generateToken();
+      const response = await fetch('http://localhost:5000/checksession', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      const userId = data.id;
+      const clubResponse = await fetch(`${api}/clubs/${id}/leave`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
+<<<<<<< HEAD
         credentials: 'include',
         body: JSON.stringify({ username: 'current_user_username' }),
+=======
+        body: JSON.stringify({ userId }),
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
       });
-      if (response.ok) {
+      if (clubResponse.ok) {
         setIsMember(false);
+      } else {
+        throw new Error(`Error leaving club: ${clubResponse.status}`);
       }
     } catch (error) {
       console.error('Error leaving club:', error);

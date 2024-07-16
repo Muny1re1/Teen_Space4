@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, request, jsonify, session, make_response
 from flask_restful import Api, Resource
 from flask_cors import CORS
@@ -8,6 +9,50 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Set a secret key for session encryption
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+=======
+from flask import Flask, request, make_response, jsonify, session
+from flask_migrate import Migrate
+from flask_restful import Api, Resource, reqparse
+from datetime import datetime, timedelta
+from flask_cors import CORS, cross_origin
+import secrets
+from pytz import timezone
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies
+from models import db, User, Club, Event, Announcement, user_club
+
+app = Flask(__name__)
+CORS(app, origins=['http://localhost:3000'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], headers=['Content-Type', 'Authorization'])
+app.secret_key = secrets.token_urlsafe(16)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = app.secret_key
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_SECURE'] = False
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=2)
+
+jwt = JWTManager(app)
+
+# Configure CORS
+CORS(app, origins=['http://localhost:3000']) 
+CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
+
+parser = reqparse.RequestParser()
+parser.add_argument('club_id', type=int, location='args')
+
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return response
 
 # Initialize extensions
 db.init_app(app)
@@ -62,6 +107,18 @@ class Login(Resource):
 
 api.add_resource(Login, '/login')
 
+# Protected resources
+class ProtectedResource(Resource):
+    @jwt_required
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.filter(User.id == user_id).first()
+        if user:
+            return user.to_dict(), 200
+        return {}, 401
+
+api.add_resource(ProtectedResource, '/protected')
+
 # Logout
 class Logout(Resource):
     def delete(self):
@@ -90,6 +147,10 @@ class Clubs(Resource):
         clubs = Club.query.all()
         return make_response([{"id": club.id, "name": club.name, "description": club.description} for club in clubs], 200)
 
+<<<<<<< HEAD
+=======
+    @jwt_required
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
     def post(self):
         data = request.get_json()
         new_club = Club(name=data['name'], description=data['description'])
@@ -122,6 +183,10 @@ api.add_resource(ClubByID, '/clubs/<int:club_id>')
 
 # User joining a club
 class JoinClub(Resource):
+<<<<<<< HEAD
+=======
+    @jwt_required
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
     def post(self, club_id):
         data = request.get_json()
         user_id = session.get('user_id')
@@ -137,10 +202,14 @@ class JoinClub(Resource):
         db.session.commit()
         return make_response({"message": "Joined club successfully"}, 200)
 
-api.add_resource(JoinClub, '/clubs/<int:club_id>/join')
+api.add_resource(JoinClub, '/api/clubs/<int:club_id>')
 
 # User leaving a club
 class LeaveClub(Resource):
+<<<<<<< HEAD
+=======
+    @jwt_required
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
     def post(self, club_id):
         data = request.get_json()
         user_id = session.get('user_id')
@@ -164,6 +233,10 @@ class Events(Resource):
         events = Event.query.all()
         return make_response([{"id": event.id, "name": event.name, "date": event.date.isoformat()} for event in events], 200)
 
+<<<<<<< HEAD
+=======
+    @jwt_required
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
     def post(self):
         data = request.get_json()
         user_id = session.get('user_id')
@@ -187,6 +260,7 @@ class Announcements(Resource):
         announcements = Announcement.query.all()
         return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
 
+<<<<<<< HEAD
     def post(self):
         data = request.get_json()
         user_id = session.get('user_id')
@@ -198,6 +272,12 @@ class Announcements(Resource):
             return make_response({'message': 'User not found'}, 404)
         
         new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'], user_id=user.id)
+=======
+    @jwt_required
+    def post(self):
+        data = request.get_json()
+        new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'], user_id=data['user_id'])
+>>>>>>> 0349b9ee9c1d435aeb2f68cb77c25ec5ea467760
         db.session.add(new_announcement)
         db.session.commit()
         response = {'content': new_announcement.content}
@@ -212,6 +292,27 @@ class AnnouncementsByClubId(Resource):
         return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
 
 api.add_resource(AnnouncementsByClubId, '/club/<int:club_id>/announcements')
+
+@app.route('/set_session')
+def set_session():
+    session['test_key'] = 'test_value'
+    return 'Session set!'
+
+@app.route('/get_session')
+def get_session():
+    return session.get('test_key')
+
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+
+@app.route('/generate_token', methods=['POST'])
+def generate_token():
+    access_token = create_access_token(identity='test_user')
+    return {'access_token': access_token}
+
+@app.route('/protected', methods=['GET'])
+@jwt_required
+def protected():
+    return {'message': 'Hello, {}'.format(get_jwt_identity())}
 
 with app.app_context():
     db.create_all()
