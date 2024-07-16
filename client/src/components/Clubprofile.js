@@ -17,6 +17,7 @@ function Clubprofile() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ username: 'current_user_username' }),
       });
       if (response.ok) {
@@ -36,6 +37,7 @@ function Clubprofile() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ username: 'current_user_username' }),
       });
       if (response.ok) {
