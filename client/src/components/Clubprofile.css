@@ -1,168 +1,114 @@
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Clicker+Script&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-.club-profile{
-    top: 0;
+.club-profile {
     display: flex;
-    flex-direction: wrap;
+    flex-direction: column;
     padding: 25px;
-    height: 100vh;
+    min-height: 100vh;
     background: url(../assets/back.png);
     background-size: cover;
 }
 
-.content{
-    margin-left: 200px;
+.content {
+    margin: auto;
     padding: 35px;
-    width: 900px;
+    max-width: 900px;
     background: transparent;
     border: 0.2px solid black;
     border-radius: 50px;
     backdrop-filter: blur(20px);
 }
 
-.club-details{
+.club-details {
     align-items: center;
     padding: 25px;
-    width: 700px;
-    justify-content: center;
-    margin-top: 150px;
-    margin-bottom: 350px;
-    margin-left: 50px;
+    max-width: 700px;
+    margin: 150px auto 50px auto; /* Center vertically, adjust margins as needed */
 }
 
-.club-details h1{
+.club-details h1 {
     text-align: center;
     font-family: "Dancing Script", cursive;
-    font-size: 70px;
+    font-size: 4rem; /* Adjust font size for responsiveness */
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: rgb(255, 179, 79);
 }
 
-.club-details p{
+.club-details p {
     text-align: center;
     font-family: "Poppins", sans-serif;
-    font-size: 18px;
+    font-size: 1.5rem;
     font-weight: 400;
     letter-spacing: 1px;
     color: rgb(253, 239, 225);
 }
 
-.fa-arrow-left-long{
-    margin-top: 50px;
-    margin-left: 270px;
-    font-size: 45px;
+.fa-arrow-left-long {
+    margin-top: 20px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5rem;
     color: rgb(255, 179, 79);
 }
 
-.club-events{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-    margin-bottom: 50px;
+.club-events, .club-notifications {
+    text-align: center;
+    margin: 50px auto;
+    max-width: 90%;
 }
 
-.club-events h2{
-    text-align: center;
+.club-events h2, .club-notifications h2 {
     font-family: "Dancing Script", cursive;
-    font-size: 70px;
+    font-size: 4rem;
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: rgb(255, 146, 3);
 }
 
-.club-events ul{
+.club-events ul, .club-notifications ul {
     list-style-type: none;
     padding: 0;
-    font-size: 20px;
+    font-size: 1.5rem;
     color: bisque;
     letter-spacing: 1px;
     font-family: 'Times New Roman', Times, serif;
 }
 
-.club-notifications{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-    margin-bottom: 50px;
-}
-
-.club-notifications h2{
-    text-align: center;
-    font-family: "Dancing Script", cursive;
-    font-size: 70px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: rgb(248, 141, 1);
-}
-
-.club-notifications ul{
-    list-style-type: none;
-    padding: 0;
-    font-size: 20px;
-    color: bisque;
-    letter-spacing: 1px;
-    font-family: 'Times New Roman', Times, serif;
-}
-
-.btn-join{
+.btn-join, .btn-leave {
     width: 200px;
     padding: 10px;
     border-radius: 20px;
     background: radial-gradient(circle at center, #462a02, #2b1901, #0d0804);
     color: wheat;
-    font-size: 20px;
+    font-size: 1.5rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all.3s ease-in-out;
-    margin-left: 600px;
-    margin-top: 240px;
+    transition: all 0.3s ease-in-out;
+    margin: 20px auto; 
 }
 
-.btn-join:hover{
-    border: none;
+.btn-join:hover, .btn-leave:hover {
     background: radial-gradient(circle, rgb(250, 240, 184), rgb(255, 193, 112));
     color: #0d0804;
-    font-size: 20px;
-    font-weight: 600;
     transform: scale(1.05);
     box-shadow: 0 0 10px rgba(0, 0, 0, .3);
 }
 
-.btn-leave{
-    width: 200px;
-    padding: 10px;
-    border-radius: 20px;
-    background: radial-gradient(circle at center, #462a02, #2b1901, #0d0804);
-    color: wheat;
-    font-size: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all.3s ease-in-out;
-    margin-left: 40px;
-}
-
-.btn-leave:hover{
-    border: none;
-    background: radial-gradient(circle, rgb(247, 5, 5), rgb(247, 134, 134));
-    color: #0d0804;
-    font-size: 20px;
-    font-weight: 600;
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 0, 0, .3);
-}
-
-.logo1 img{
-    margin-left: 40px;
+.logo1 img {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 80%;
+    max-width: 300px;
     margin-top: 20px;
-    width: 300px;
 }
 
-.addformm{
-    margin-left: 740px;
+.addformm {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
     width: 60px;
     padding: 10px;
     border-right: 3px solid rgb(240, 178, 136);
@@ -171,23 +117,23 @@
     border-left: none;
     border-radius: 10px;
     transition: all.3s ease-in-out;
+    margin-top: 20px;
 }
 
-.addformm:hover{
+.addformm:hover {
     border-top: 2px solid rgb(240, 178, 136);
     border-left: 2px solid rgb(240, 178, 136);
     border-right: none;
     border-bottom: none;
     color: #ff7300;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 1.5rem;
     transform: scale(1.05);
     box-shadow: 0 0 10px rgba(0, 0, 0, .3);
 }
 
-.fa-plus{
+.fa-plus {
     color: #ff9500;
-    font-size:25px;
+    font-size: 2.5rem; 
     margin-top: 10px;
     margin-left: 8px;
     margin-bottom: 5px;
