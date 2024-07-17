@@ -7,93 +7,12 @@ function Clubprofile() {
   const [club, setClub] = useState(null);
   const [events, setEvents] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [isMember, setIsMember] = useState(false);
   const api = "http://localhost:5000";
-
-  let token = null;
-
-  const generateToken = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/generate_token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: 'your_username', password: 'your_password' }),
-      });
-      const tokenData = await response.json();
-      token = tokenData.token;
-      return token;
-    } catch (error) {
-      console.error('Error generating token:', error);
-      return null;
-    }
-  };
-
-  const handleJoin = async () => {
-    try {
-      const token = await generateToken();
-      const response = await fetch('http://localhost:5000/checksession', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      const userId = data.id;
-      const clubResponse = await fetch(`${api}/clubs/${id}/join`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId }),
-      });
-      if (clubResponse.ok) {
-        setIsMember(true);
-        window.alert('You have successfully joined the club!');
-      } else {
-        throw new Error(`Error joining club: ${clubResponse.status}`);
-      }
-    } catch (error) {
-      console.error('Error joining club:', error);
-      window.alert('Sorry! There was an error in adding you to the club, try again later!');
-    }
-  };
-
-  const handleLeave = async () => {
-    try {
-      const token = await generateToken();
-      const response = await fetch('http://localhost:5000/checksession', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      const userId = data.id;
-      const clubResponse = await fetch(`${api}/clubs/${id}/leave`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId }),
-      });
-      if (clubResponse.ok) {
-        setIsMember(false);
-      } else {
-        throw new Error(`Error leaving club: ${clubResponse.status}`);
-      }
-    } catch (error) {
-      console.error('Error leaving club:', error);
-    }
-  };
 
   useEffect(() => {
     const fetchClubData = async () => {
       try {
-        const clubResponse = await fetch(`http://localhost:5000/clubs/${id}`);
+        const clubResponse = await fetch(`${api}/clubs/${id}`);
         if (!clubResponse.ok) {
           throw new Error(`HTTP error! status: ${clubResponse.status}`);
         }
@@ -103,12 +22,56 @@ function Clubprofile() {
         setNotifications(clubData.announcements);
       } catch (error) {
         console.error('Error fetching club data:', error);
-        setClub(null); // or some default value
+        setClub(null);
       }
     };
 
     fetchClubData();
   }, [id]);
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      const response = await fetch(`${api}/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setEvents(events.filter(event => event.id !== eventId));
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
+
+  const handleDeleteNotification = async (notificationId) => {
+    try {
+      const response = await fetch(`${api}/announcements/${notificationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setNotifications(notifications.filter(notification => notification.id !== notificationId));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  const handleEditEvent = async (eventId) => {
+    // Implement edit event logic here
+    console.log(`Editing event with id ${eventId}`);
+  };
+
+  const handleEditNotification = async (notificationId) => {
+    // Implement edit notification logic here
+    console.log(`Editing notification with id ${notificationId}`);
+  };
 
   if (!club) return <div>Loading...</div>;
 
@@ -128,34 +91,61 @@ function Clubprofile() {
       </div>
 
       <div className='content'>
-        <div className='addformm'>
-          <Link to="/addform">
-            <i className="fa-solid fa-plus fa-beat"></i>
-          </Link>
-        </div>
         <div className='club-events'>
-          <h2>Events</h2>
-          <ul>
-            {events.map(event => (
-              <li key={event.id}>{event.name} - {new Date(event.date).toLocaleDateString()}</li>
-            ))}
-          </ul>
+          <div>
+            <h2>
+              Events
+              <span className='add-btn'>
+                <Link to="/addform">
+                  <i className="fa-solid fa-plus"></i>
+                </Link>
+              </span>
+            </h2>
+            <ul>
+              {events.map(event => (
+                <li key={event.id}>
+                  {event.name} - {new Date(event.date).toLocaleDateString()}
+                  <div className='toolbox'>
+                    <button className='delete-btn' onClick={() => handleDeleteEvent(event.id)}>
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                    <button className='edit-btn' onClick={() => handleEditEvent(event.id)}>
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className='club-notifications'>
-          <h2>Announcements</h2>
-          <ul>
-            {notifications.map(notification => (
-              <li key={notification.id}>{notification.content}</li>
-            ))}
-          </ul>
+          <div>
+            <h2>
+              Announcements
+              <span className='add-btn'>
+                <Link to="/addnot">
+                  <i className="fa-solid fa-plus"></i>
+                </Link>
+              </span>
+            </h2>
+            <ul>
+              {notifications.map(notification => (
+                <li key={notification.id}>
+                  {notification.content}
+                  <div className='toolbox'>
+                    <button className='delete-btn' onClick={() => handleDeleteNotification(notification.id)}>
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                    <button className='edit-btn' onClick={() => handleEditNotification(notification.id)}>
+                      <i className="fa-solid fa-pen-to-square"></i>
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-
-        {!isMember ? (
-          <button className='btn-join' onClick={handleJoin}>Join the Club</button>
-        ) : (
-          <button className='btn-leave' onClick={handleLeave}>Leave the Club</button>
-        )}
       </div>
     </div>
   );

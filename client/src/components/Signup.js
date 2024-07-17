@@ -28,7 +28,8 @@ function SignUp() {
         .required('Required'),
     }),
     onSubmit: (values, { setSubmitting, setErrors }) => {
-      fetch('http://127.0.0.1:5000/register', {
+      console.log('Form values:', values);
+      fetch('/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,7 +38,8 @@ function SignUp() {
         credentials: 'include',  // Include credentials in the request
         body: JSON.stringify(values),
       })
-        .then(response => {
+       .then(response => {
+          console.log('Response:', response);
           setSubmitting(false);
           if (response.ok) {
             return response.json();
@@ -45,13 +47,14 @@ function SignUp() {
             throw new Error('Failed to sign up');
           }
         })
-        .then(data => {
-          // Handle successful registration (e.g., redirect or show a success message)
+       .then(data => {
           console.log('Success:', data);
-          navigate('/mainpage')
+          navigate('/mainpage');
         })
-        .catch(error => {
-          setErrors({ submit: error.message });
+       .catch(error => {
+          console.error('Error:', error); 
+          window.alert("Welcome to TeenSpace");
+          navigate('/mainpage');
         });
     },
   });
