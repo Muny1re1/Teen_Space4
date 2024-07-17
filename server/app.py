@@ -1,25 +1,51 @@
-from flask import Flask, request, jsonify, session, make_response
-from flask_restful import Api, Resource
-from flask_cors import CORS
-from datetime import datetime
-from models import db, User, Club, Event, Announcement  # Assuming these models are defined in models.py
+from flask import Flask, request, make_response, jsonify, session
+from flask_migrate import Migrate
+from flask_restful import Api, Resource, reqparse
+from datetime import datetime, timedelta
+from flask_cors import CORS, cross_origin
+import logging
+import secrets
+from pytz import timezone
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies
+from models import db, User, Club, Event, Announcement, user_club
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Set a secret key for session encryption
+CORS(app, origins=['http://localhost:3000'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allow_headers=['Content-Type', 'Authorization'], supports_credentials=True)
+app.secret_key = secrets.token_urlsafe(16)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = app.secret_key
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_SECURE'] = False
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=2)
+
+jwt = JWTManager(app)
+
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return response
 
 # Initialize extensions
+migrate = Migrate(app, db)
 db.init_app(app)
 api = Api(app)
-
-# Configure CORS
-CORS(app, supports_credentials=True, origins=['http://localhost:3000'], allow_headers=["Content-Type", "Access-Control-Allow-Credentials"])
+jwt = JWTManager(app)
 
 # Home page
 class Index(Resource):
     def get(self):
-        return make_response({"index": "Welcome to the Teen Space API"}, 200)
+        response_dict = {"index": "Welcome to the Teen Space API"}
+        return make_response(response_dict, 200)
 
 api.add_resource(Index, '/')
 
@@ -31,10 +57,13 @@ class Register(Resource):
         db.session.add(new_user)
         db.session.commit()
         
+        # Create the response
         response = make_response(
             jsonify({"id": new_user.id, "username": new_user.username}),
             201
         )
+        
+        # Add headers to the response (CORS headers are automatically managed by flask-cors)
         response.headers['Content-Type'] = 'application/json'
         
         return response
@@ -49,21 +78,30 @@ class Login(Resource):
         if not user or user.password != data['password']:
             return make_response({'message': 'Invalid credentials'}, 401)
 
-        session['user_id'] = user.id
-        session['username'] = user.username
-        
+        access_token = create_access_token(identity=user.id)
         response = {
-            'message': 'Login successful',
+            'access_token': access_token,
             'user': user.to_dict()
         }
-        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
         return make_response(jsonify(response), 200)
 
 api.add_resource(Login, '/login')
 
+# Protected resources
+class ProtectedResource(Resource):
+    @jwt_required
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.filter(User.id == user_id).first()
+        if user:
+            return user.to_dict(), 200
+        return {}, 401
+
+api.add_resource(ProtectedResource, '/protected')
+
 # Logout
 class Logout(Resource):
+    @jwt_required()
     def delete(self):
         session.clear()
         response = make_response({"message": "Successfully logged out"}, 200)
@@ -72,17 +110,22 @@ class Logout(Resource):
 
 api.add_resource(Logout, "/logout")
 
-# Check session
-class CheckSession(Resource):
-    def get(self):
-        user_id = session.get('user_id')
-        if user_id:
-            user = User.query.filter_by(id=user_id).first()
-            if user:
-                return user.to_dict(), 200
-        return {}, 401
+# Flask route for checking session
+@app.route('/checksession', methods=['GET'])
+@jwt_required()
+def check_session():
+    try:
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(id=current_user).first()
 
-api.add_resource(CheckSession, "/checksession")
+        if user:
+            return jsonify({'message': 'Session valid', 'user': user.to_dict()}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+
+    except Exception as e:
+        return jsonify({'message': 'Error checking session', 'error': str(e)}), 500
+
 
 # List of clubs
 class Clubs(Resource):
@@ -90,6 +133,7 @@ class Clubs(Resource):
         clubs = Club.query.all()
         return make_response([{"id": club.id, "name": club.name, "description": club.description} for club in clubs], 200)
 
+    @jwt_required
     def post(self):
         data = request.get_json()
         new_club = Club(name=data['name'], description=data['description'])
@@ -124,33 +168,23 @@ api.add_resource(ClubByID, '/clubs/<int:club_id>')
 class JoinClub(Resource):
     def post(self, club_id):
         data = request.get_json()
-        user_id = session.get('user_id')
-        if not user_id:
-            return make_response({'message': 'User not logged in'}, 401)
-        
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(username=data['username']).first()
         if not user:
             return make_response({'message': 'User not found'}, 404)
-        
         club = Club.query.get_or_404(club_id)
         user.clubs.append(club)
         db.session.commit()
         return make_response({"message": "Joined club successfully"}, 200)
 
-api.add_resource(JoinClub, '/clubs/<int:club_id>/join')
+api.add_resource(JoinClub, '/api/clubs/<int:club_id>')
 
 # User leaving a club
 class LeaveClub(Resource):
     def post(self, club_id):
         data = request.get_json()
-        user_id = session.get('user_id')
-        if not user_id:
-            return make_response({'message': 'User not logged in'}, 401)
-        
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter_by(username=data['username']).first()
         if not user:
             return make_response({'message': 'User not found'}, 404)
-        
         club = Club.query.get_or_404(club_id)
         user.clubs.remove(club)
         db.session.commit()
@@ -159,62 +193,63 @@ class LeaveClub(Resource):
 api.add_resource(LeaveClub, '/clubs/<int:club_id>/leave')
 
 # List of events
-class Events(Resource):
-    def get(self):
-        events = Event.query.all()
+@app.route("/events", methods=["POST"])
+def create_event():
+    data = request.get_json()
+    date_obj = datetime.strptime(data['date'], '%Y-%m-%d').date()
+    data['date'] = date_obj
+
+    new_event = Event(**data)
+    db.session.add(new_event)
+    db.session.commit()
+
+    response = jsonify({'message': 'Event created successfully'})
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+    return response
+
+# Find events by club
+class ClubEvents(Resource):
+    def get(self, club_id):
+        events = Event.query.filter_by(club_id=club_id).all()
         return make_response([{"id": event.id, "name": event.name, "date": event.date.isoformat()} for event in events], 200)
 
-    def post(self):
-        data = request.get_json()
-        user_id = session.get('user_id')
-        if not user_id:
-            return make_response({'message': 'User not logged in'}, 401)
-        
-        user = User.query.filter_by(id=user_id).first()
-        if not user:
-            return make_response({'message': 'User not found'}, 404)
-        
-        new_event = Event(name=data['name'], date=datetime.strptime(data['date'], '%Y-%m-%d'), user_id=user.id, club_id=data['club_id'])
-        db.session.add(new_event)
-        db.session.commit()
-        return make_response({"id": new_event.id, "name": new_event.name, "date": new_event.date.isoformat()}, 201)
+api.add_resource(ClubEvents, '/clubs/<int:club_id>/events')
 
-api.add_resource(Events, '/events')
-
-# Announcements
+# List of announcements
 class Announcements(Resource):
+    @cross_origin(supports_credentials=True)
     def get(self):
         announcements = Announcement.query.all()
         return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
 
+    @jwt_required()
+    @cross_origin(supports_credentials=True)
     def post(self):
+        logging.debug("Entering the Announcements post method")
         data = request.get_json()
-        user_id = session.get('user_id')
+        logging.debug(f"Request data: {data}")
+
+        user_id = get_jwt_identity()
+        logging.debug(f"User ID from JWT: {user_id}")
+
         if not user_id:
+            logging.debug("User not logged in")
             return make_response({'message': 'User not logged in'}, 401)
-        
+
         user = User.query.filter_by(id=user_id).first()
         if not user:
+            logging.debug("User not found")
             return make_response({'message': 'User not found'}, 404)
-        
+
         new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'], user_id=user.id)
         db.session.add(new_announcement)
         db.session.commit()
+
         response = {'content': new_announcement.content}
+        logging.debug("New announcement created successfully")
         return make_response(response, 201)
 
 api.add_resource(Announcements, '/announcements')
 
-# Announcements by Club ID
-class AnnouncementsByClubId(Resource):
-    def get(self, club_id):
-        announcements = Announcement.query.filter_by(club_id=club_id).all()
-        return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
-
-api.add_resource(AnnouncementsByClubId, '/club/<int:club_id>/announcements')
-
-with app.app_context():
-    db.create_all()
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)
