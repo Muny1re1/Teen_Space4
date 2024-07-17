@@ -35,8 +35,9 @@ function Login() {
         // Redirect to main page or club dashboard
         navigate("/mainpage");
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         // Ignore the error and navigate to the main page
+        window.alert("Welcome back to your TeenSpace account");
         navigate("/mainpage");
       }
     }

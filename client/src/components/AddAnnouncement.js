@@ -4,48 +4,46 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import './Login.css';
 
-function CreateEvent() {
+function AddAnnouncement() {
   const navigate = useNavigate();
-
   const formik = useFormik({
     initialValues: {
-      name: '',
-      date: '',
+      content: '',
+      club: '',
     },
     validationSchema: Yup.object({
-      name: Yup.string().required('Required'),
-      date: Yup.date().required('Required'),
+      content: Yup.string().required('Required'),
+      club: Yup.string().required('Required'),
     }),
     onSubmit: (values, { setSubmitting, setErrors }) => {
-      fetch('http://127.0.0.1:5000/events', {
+      fetch('http://127.0.0.1:5000/announcements', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
+          'mode': 'no-cors',
         },
         body: JSON.stringify(values),
-    })
-    .then(response => {
+      })
+      .then(response => {
         setSubmitting(false);
         if (response.ok) {
-            return response.json();
+          return response.json();
         } else {
-            throw new Error('Failed to create event');
+          throw new Error('Failed to create event');
         }
-    })
-    .then(data => {
+      })
+      .then(data => {
         console.log('Success:', data);
-        window.alert("The event has been added to the TeenSpace Database")
         navigate('/mainpage');
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         console.error('Error:', error);
         setErrors({ submit: error.message });
-        window.alert("The event has been added to the TeenSpace Database")
-        navigate('/mainpage');
-    });
+        window.alert("The announcement has been added to the TeenSpace Database")
+        // navigate('/mainpage');
+      });
     },
   });
-
   return (
     <div className="signup">
       <div className="btn btn-back">
@@ -55,41 +53,39 @@ function CreateEvent() {
       </div>
       <div className="form-container starter">
         <form onSubmit={formik.handleSubmit}>
-          <h1>Create Event</h1>
+          <h1>Add an announcement</h1>
           <h2 className="emoji">🎉</h2>
-          <h3>Create a new event</h3>
-          <p>Let's get started</p>
           <div className="form-group">
             <input
-              id="name"
-              name="name"
+              id="content"
+              name="content"
               type="text"
-              placeholder="Event Name"
+              placeholder="Content"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.name}
+              value={formik.values.content}
             />
           </div>
-          {formik.touched.name && formik.errors.name ? (
-            <div className="error">{formik.errors.name}</div>
+          {formik.touched.content && formik.errors.content ? (
+            <div className="error">{formik.errors.content}</div>
           ) : null}
           <div className="form-group">
             <input
-              id="date"
-              name="date"
-              type="date"
-              placeholder="Event Date"
+              id="club"
+              name="club"
+              type="text"
+              placeholder="Club ID"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.date}
+              value={formik.values.club}
             />
           </div>
-          {formik.touched.date && formik.errors.date ? (
-            <div className="error">{formik.errors.date}</div>
+          {formik.touched.club && formik.errors.club ? (
+            <div className="error">{formik.errors.club}</div>
           ) : null}
           <div className="btnn">
             <button type="submit" className="login-btn" disabled={formik.isSubmitting}>
-              Create Event
+              Add
             </button>
           </div>
         </form>
@@ -98,4 +94,4 @@ function CreateEvent() {
   );
 }
 
-export default CreateEvent;
+export default AddAnnouncement;

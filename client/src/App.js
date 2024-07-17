@@ -7,6 +7,7 @@ import Landingpage from './components/Landingpage';
 import Clubprofile from './components/Clubprofile';
 import Addform from './components/Addform';
 import Logout from './components/Logout';
+import AddAnnouncement from './components/AddAnnouncement';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/club/:id" element={<Clubprofile />} />
           <Route path="/addform" element={<Addform />} />
           <Route path="/logout" element={<Logout/>}/>
+          <Route path="addnot" element={<AddAnnouncement/>} />
         </Routes>
       </div>
     </BrowserRouter>
