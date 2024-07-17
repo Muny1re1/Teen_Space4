@@ -1,98 +1,98 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import './Login.css';
 
-function Addform() {
+function CreateEvent() {
+  const navigate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
-      announcement: '',
-      club_id: '',
+      name: '',
       date: '',
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required('Required'),
+      date: Yup.date().required('Required'),
+    }),
+    onSubmit: (values, { setSubmitting, setErrors }) => {
+      fetch('http://127.0.0.1:5000/events', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+    })
+    .then(response => {
+        setSubmitting(false);
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to create event');
+        }
+    })
+    .then(data => {
+        console.log('Success:', data);
+        navigate('/mainpage'); // Redirect to main page after successful creation
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        setErrors({ submit: error.message });
+    });
     },
   });
 
-  const [error, setError] = useState(null);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const formData = JSON.stringify(formik.values);
-
-      const response = await fetch('http://localhost:5000/announcements', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include credentials such as cookies
-        body: formData,
-      });
-
-      if (response.ok) {
-        window.alert('Added Successfully');
-        // Optionally, redirect to another page upon successful submission
-      } else if (response.status === 401) {
-        setError('Unauthorized: Please log in');
-        // Optionally, redirect to login page or handle session expiration
-      } else {
-        setError('Failed to add data');
-      }
-    } catch (error) {
-      setError('Failed to add data');
-    }
-  };
-
   return (
-    <div className="addform">
+    <div className="signup">
       <div className="btn btn-back">
-        <Link to="/mainpage">
+        <Link to="/">
           <i className="fa-solid fa-arrow-left-long"></i>
         </Link>
       </div>
       <div className="form-container starter">
-        <form onSubmit={handleSubmit}>
-          <h1>New Announcement</h1>
+        <form onSubmit={formik.handleSubmit}>
+          <h1>Create Event</h1>
+          <h2 className="emoji">🎉</h2>
+          <h3>Create a new event</h3>
+          <p>Let's get started</p>
           <div className="form-group">
             <input
-              id="announcement"
-              name="announcement"
+              id="name"
+              name="name"
               type="text"
-              placeholder="New Announcement"
-              value={formik.values.announcement}
+              placeholder="Event Name"
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.name}
             />
-            <i className="fa-solid fa-bullhorn"></i>
           </div>
-          <div className="form-group">
-            <input
-              id="club_id"
-              name="club_id"
-              type="number"
-              placeholder="Club ID"
-              value={formik.values.club_id}
-              onChange={formik.handleChange}
-            />
-            <i className="fa-solid fa-calendar-days"></i>
-          </div>
+          {formik.touched.name && formik.errors.name ? (
+            <div className="error">{formik.errors.name}</div>
+          ) : null}
           <div className="form-group">
             <input
               id="date"
               name="date"
               type="date"
-              placeholder="Date for the Announcement"
-              value={formik.values.date}
+              placeholder="Event Date"
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.date}
             />
           </div>
+          {formik.touched.date && formik.errors.date ? (
+            <div className="error">{formik.errors.date}</div>
+          ) : null}
           <div className="btnn">
-            <button type="submit" className="add-btn">
-              Add
+            <button type="submit" className="login-btn" disabled={formik.isSubmitting}>
+              Create Event
             </button>
           </div>
-          {error && <div style={{ color: 'red' }}>{error}</div>}
         </form>
       </div>
     </div>
   );
 }
 
-export default Addform;
+export default CreateEvent;
