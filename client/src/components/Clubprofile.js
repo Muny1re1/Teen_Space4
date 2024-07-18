@@ -64,8 +64,27 @@ function Clubprofile() {
   };
 
   const handleEditEvent = async (eventId) => {
-    // Implement edit event logic here
-    console.log(`Editing event with id ${eventId}`);
+    // Prompt user for new event name and date
+    const newEventName = prompt("Enter new event name:");
+    const newEventDate = prompt("Enter new event date (in YYYY-MM-DD format):");
+    const eventData = {};
+    if (newEventName) eventData.name = newEventName;
+    if (newEventDate) eventData.date = newEventDate;
+    try {
+      const response = await fetch(`/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData)
+      });
+      
+      if (response.ok) {
+        console.log(`Event with id ${eventId} updated successfully!`);
+      } else {
+        console.error(`Error updating event: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error(`Error updating event: ${error}`);
+    }
   };
 
   const handleEditNotification = async (notificationId) => {
