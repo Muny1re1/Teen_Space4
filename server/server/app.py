@@ -1,15 +1,16 @@
-
 from flask import Flask, request, make_response, jsonify, session
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from models import db, User, Club, Event, Announcement, user_club
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = 'secret'  # Change this to a random secret key
 
 # Configure CORS
 CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
@@ -18,6 +19,7 @@ CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
 migrate = Migrate(app, db)
 db.init_app(app)
 api = Api(app)
+jwt = JWTManager(app)
 
 # Home page
 class Index(Resource):
@@ -52,9 +54,10 @@ class Login(Resource):
         if not user or user.password != data['password']:
             return make_response({'message': 'Invalid credentials'}, 401)
 
+        access_token = create_access_token(identity=user.id)
         session['user_id'] = user.id  # Set user ID in session
         response = {
-            'user_id': user.id,
+            'access_token': access_token,
             'user': user.to_dict()
         }
         return make_response(jsonify(response), 200)
@@ -63,6 +66,7 @@ api.add_resource(Login, '/login')
 
 # Logout
 class Logout(Resource):
+    @jwt_required()
     def delete(self):
         session.clear()
         response = make_response({"message": "Successfully logged out"}, 200)
@@ -73,12 +77,12 @@ api.add_resource(Logout, "/logout")
 
 # Check session
 class CheckSession(Resource):
+    @jwt_required()
     def get(self):
-        user_id = session.get('user_id')
-        if user_id:
-            user = User.query.filter(User.id == user_id).first()
-            if user:
-                return user.to_dict(), 200
+        user_id = get_jwt_identity()
+        user = User.query.filter(User.id == user_id).first()
+        if user:
+            return user.to_dict(), 200
         return {}, 401
 
 api.add_resource(CheckSession, "/checksession")
@@ -89,6 +93,7 @@ class Clubs(Resource):
         clubs = Club.query.all()
         return make_response([{"id": club.id, "name": club.name, "description": club.description} for club in clubs], 200)
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
         new_club = Club(name=data['name'], description=data['description'])
@@ -157,11 +162,10 @@ class Events(Resource):
         events = Event.query.all()
         return make_response([{"id": event.id, "name": event.name, "date": event.date.isoformat()} for event in events], 200)
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
-        user_id = session.get('user_id')
-        if not user_id:
-            return make_response({'message': 'User not authenticated'}, 401)
+        user_id = get_jwt_identity()
         user = User.query.get(user_id)
         if not user:
             return make_response({'message': 'User not found'}, 404)
@@ -180,7 +184,13 @@ class Announcements(Resource):
 
     def post(self):
         data = request.get_json()
-        new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'])
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'message': 'User not authenticated'}, 401)
+        user = User.query.get(user_id)
+        if not user:
+            return make_response({'message': 'User not found'}, 404)
+        new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'], user_id=user.id)
         db.session.add(new_announcement)
         db.session.commit()
         response = {'content': new_announcement.content}
