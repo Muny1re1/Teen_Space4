@@ -119,7 +119,7 @@ function Clubprofile() {
       console.error('Error deleting notification:', error);
     }
   };
-  
+
   const handleEditEvent = async (eventId) => {
     const newEventName = prompt("Enter new event name:");
     if (!newEventName) {
@@ -134,7 +134,7 @@ function Clubprofile() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventData)
       });
-  
+
       if (response.ok) {
         console.log(`Event with id ${eventId} updated successfully!`);
         // Update the state with the new event data
@@ -146,7 +146,7 @@ function Clubprofile() {
       console.error(`Error updating event: ${error}`);
     }
   };
-  
+
 
   const handleEditNotification = async (notificationId) => {
     const newNotificationContent = prompt("Enter new notification content:");

@@ -253,7 +253,7 @@ def create_announcement():
     club = Club.query.get(club_id)
     if club is None:
         return jsonify({'error': 'Club not found'}), 404
-    
+
     announcement = Announcement(content=content, club=club)
     db.session.add(announcement)
     db.session.commit()
