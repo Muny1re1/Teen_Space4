@@ -119,13 +119,14 @@ function Clubprofile() {
       console.error('Error deleting notification:', error);
     }
   };
-
+  
   const handleEditEvent = async (eventId) => {
     const newEventName = prompt("Enter new event name:");
-    const newEventDate = prompt("Enter new event date (in YYYY-MM-DD format):");
-    const eventData = {};
-    if (newEventName) eventData.name = newEventName;
-    if (newEventDate) eventData.date = newEventDate;
+    if (!newEventName) {
+      console.log('No event name entered.');
+      return;
+    }
+    const eventData = { name: newEventName };
     try {
       const response = await fetch(`${api}/events/${eventId}`, {
         method: 'PATCH',
@@ -133,7 +134,7 @@ function Clubprofile() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventData)
       });
-
+  
       if (response.ok) {
         console.log(`Event with id ${eventId} updated successfully!`);
         // Update the state with the new event data
@@ -145,6 +146,7 @@ function Clubprofile() {
       console.error(`Error updating event: ${error}`);
     }
   };
+  
 
   const handleEditNotification = async (notificationId) => {
     const newNotificationContent = prompt("Enter new notification content:");

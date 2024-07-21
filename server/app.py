@@ -234,7 +234,6 @@ def update_event(event_id):
 
     db.session.commit()
     return jsonify({'message': 'Event updated successfully'}), 200
-
 # Find events by club
 class ClubEvents(Resource):
     def get(self, club_id):
