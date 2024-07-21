@@ -1,23 +1,44 @@
-
 from flask import Flask, request, make_response, jsonify, session
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_cors import CORS
+import logging
+import secrets
+from pytz import timezone
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt, set_access_cookies
 from models import db, User, Club, Event, Announcement, user_club
 
 app = Flask(__name__)
-app.secret_key = 'secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configure CORS
-CORS(app, supports_credentials=True, origins=['http://localhost:3000'])
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
-# Initialize extensions
+app.secret_key = secrets.token_urlsafe(16)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teen_space.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = app.secret_key
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_SECURE'] = False
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=2)
+
+jwt = JWTManager(app)
 migrate = Migrate(app, db)
 db.init_app(app)
 api = Api(app)
+
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        return response
 
 # Home page
 class Index(Resource):
@@ -61,8 +82,21 @@ class Login(Resource):
 
 api.add_resource(Login, '/login')
 
+# Protected resources
+class ProtectedResource(Resource):
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        user = User.query.filter(User.id == user_id).first()
+        if user:
+            return user.to_dict(), 200
+        return {}, 401
+
+api.add_resource(ProtectedResource, '/protected')
+
 # Logout
 class Logout(Resource):
+    @jwt_required()
     def delete(self):
         session.clear()
         response = make_response({"message": "Successfully logged out"}, 200)
@@ -71,17 +105,21 @@ class Logout(Resource):
 
 api.add_resource(Logout, "/logout")
 
-# Check session
-class CheckSession(Resource):
-    def get(self):
-        user_id = session.get('user_id')
-        if user_id:
-            user = User.query.filter(User.id == user_id).first()
-            if user:
-                return user.to_dict(), 200
-        return {}, 401
+# Flask route for checking session
+@app.route('/checksession', methods=['GET'])
+@jwt_required()
+def check_session():
+    try:
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(id=current_user).first()
 
-api.add_resource(CheckSession, "/checksession")
+        if user:
+            return jsonify({'message': 'Session valid', 'user': user.to_dict()}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+
+    except Exception as e:
+        return jsonify({'message': 'Error checking session', 'error': str(e)}), 500
 
 # List of clubs
 class Clubs(Resource):
@@ -89,6 +127,7 @@ class Clubs(Resource):
         clubs = Club.query.all()
         return make_response([{"id": club.id, "name": club.name, "description": club.description} for club in clubs], 200)
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
         new_club = Club(name=data['name'], description=data['description'])
@@ -152,51 +191,96 @@ class LeaveClub(Resource):
 api.add_resource(LeaveClub, '/clubs/<int:club_id>/leave')
 
 # List of events
-class Events(Resource):
-    def get(self):
-        events = Event.query.all()
+@app.route('/events', methods=['POST'])
+def create_event():
+    data = request.get_json()
+    print("Received data:", data)
+    name = data['name']
+    date_str = data['date']
+    club_id = data['club_id']
+
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+    club = Club.query.get(club_id)
+
+    if club is None:
+        return jsonify({'error': 'Club not found'}), 404
+    event = Event(name=name, date=date_obj, club=club)
+    db.session.add(event)
+    db.session.commit()
+
+    return jsonify({'message': 'Event created successfully'}), 201
+
+#Deleting an Event by id
+@app.route('/events/<int:id>', methods=['DELETE'])
+def delete_event(id):
+    event = Event.query.get(id)
+    if not event:
+        return jsonify({'message': 'Event not found'}), 404
+    db.session.delete(event)
+    db.session.commit()
+    return jsonify({'message': 'Event deleted successfully'}), 200
+
+@app.route('/events/<int:event_id>', methods=['PATCH'])
+def update_event(event_id):
+    event = Event.query.get(event_id)
+    if event is None:
+        return jsonify({'error': 'Event not found'}), 404
+
+    data = request.get_json()
+    if 'name' in data:
+        event.name = data['name']
+    if 'date' in data:
+        event.date = data['date']
+
+    db.session.commit()
+    return jsonify({'message': 'Event updated successfully'}), 200
+
+# Find events by club
+class ClubEvents(Resource):
+    def get(self, club_id):
+        events = Event.query.filter_by(club_id=club_id).all()
         return make_response([{"id": event.id, "name": event.name, "date": event.date.isoformat()} for event in events], 200)
 
-    def post(self):
-        data = request.get_json()
-        user_id = session.get('user_id')
-        if not user_id:
-            return make_response({'message': 'User not authenticated'}, 401)
-        user = User.query.get(user_id)
-        if not user:
-            return make_response({'message': 'User not found'}, 404)
-        new_event = Event(name=data['name'], date=datetime.strptime(data['date'], '%Y-%m-%d'), user_id=user.id, club_id=data['club_id'])
-        db.session.add(new_event)
-        db.session.commit()
-        return make_response({"id": new_event.id, "name": new_event.name, "date": new_event.date.isoformat()}, 201)
+api.add_resource(ClubEvents, '/clubs/<int:club_id>/events')
 
-api.add_resource(Events, '/events')
+# List of announcements
+@app.route("/announcements", methods=["POST"])
+def create_announcement():
+    data = request.get_json()
+    print("Received data:", data)
+    content = data['content']
+    club_id = data['club_id']
 
-# Announcements
-class Announcements(Resource):
-    def get(self):
-        announcements = Announcement.query.all()
-        return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
+    club = Club.query.get(club_id)
+    if club is None:
+        return jsonify({'error': 'Club not found'}), 404
+    
+    announcement = Announcement(content=content, club=club)
+    db.session.add(announcement)
+    db.session.commit()
 
-    def post(self):
-        data = request.get_json()
-        new_announcement = Announcement(content=data['announcement'], club_id=data['club_id'])
-        db.session.add(new_announcement)
-        db.session.commit()
-        response = {'content': new_announcement.content}
-        return make_response(response, 201)
+    return jsonify({'message': 'Announcement created successfully'}), 201
 
-api.add_resource(Announcements, '/announcements')
+# Deleting an Announcement
+@app.route('/announcements/<int:id>', methods=['DELETE'])
+def delete_announcement(id):
+    announcement = Announcement.query.get(id)
+    if not announcement:
+        return jsonify({'message': 'Announcement not found'}), 404
+    db.session.delete(announcement)
+    db.session.commit()
+    return jsonify({'message': 'Announcement deleted successfully'}), 200
 
-class AnnouncementsByClubId(Resource):
-    def get(self, club_id):
-        announcements = Announcement.query.filter_by(club_id=club_id).all()
-        return make_response([{'id': announcement.id, 'content': announcement.content} for announcement in announcements], 200)
-
-api.add_resource(AnnouncementsByClubId, '/club/<int:club_id>/announcements')
-
-with app.app_context():
-    db.create_all()
+# Updating an Announcement
+@app.route('/announcements/<int:id>', methods=['PATCH'])
+def update_announcement(id):
+    announcement = Announcement.query.get(id)
+    if not announcement:
+        return jsonify({'message': 'Announcement not found'}), 404
+    data = request.get_json()
+    announcement.content = data['content']
+    db.session.commit()
+    return jsonify({'message': 'Announcement updated successfully'}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)
